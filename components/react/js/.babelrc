@@ -1,0 +1,21 @@
+{
+    "presets": [
+        ["es2015", {
+            "modules": false
+        }],
+        "react",
+        "stage-1"
+    ],
+    "plugins": [
+        "transform-react-handled-props",
+        ["transform-react-remove-prop-types", {
+          "mode": "wrap"
+        }],
+        "transform-flow-comments",
+        "transform-function-bind",
+        "transform-export-extensions",
+        "react-hot-loader/babel",
+        "syntax-dynamic-import"
+        // Enables React code to work with HMR.
+    ]
+}
