@@ -109,6 +109,8 @@ class SubmitButton extends FormField {
      */
     public function render() {
         $this->addClass('form-control');
+        
+        $this->setDefaultOption('ng-click', "form.submit(this)", $this->options);
         return $this->renderInternal('template_render.php');
     }
 
