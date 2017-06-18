@@ -6,7 +6,7 @@ class DocsModule extends WebModule {
         ####### PLANSYS GENERATED CODE: START #######
         #######    DO NOT EDIT CODE BELOW     #######
         $accessType = "DEFAULT";
-        $defaultRule = "allow";
+        $defaultRule = "deny";
         $rolesRule = [
             "deny" => [],
             "allow" => [
