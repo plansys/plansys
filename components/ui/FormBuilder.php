@@ -1396,7 +1396,7 @@ EOF;
                 'method' => 'POST',
                 'class'  => 'form-horizontal ' . @$formOptions['class'],
                 'role'   => 'form',
-                'enctype' => '"multipart/form=data"'
+                'enctype' => 'multipart/form-data'
             ];
 
             $formAttr = array_merge($formOptions, $formDefaultAttr);

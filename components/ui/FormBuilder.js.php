@@ -266,6 +266,7 @@ ob_start();
             }
 
             $scope.form.submit();
+            return true;
         });
 
         $scope.form.canGoBack = function () {
