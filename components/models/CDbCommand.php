@@ -486,20 +486,36 @@ EOD;
                     $text = str_replace($k, is_numeric($v) ? $v : "'" . $v . "'", $text);
                 }
                 foreach ($params as $k => $v)  {
-                    $text = str_replace($k, is_numeric($v) ? $v : "'" . $v . "'", $text);
+                    if (is_array($v)) {
+                        $textvar = [];
+                        foreach ($v as $vv) {
+                            $textvar[] = is_numeric($vv) ? $vv : "'" . $vv . "'";
+                        }
+                        $text = str_replace($k, implode(",", $textvar), $text);
+                    } else {
+                        $text = str_replace($k, is_numeric($v) ? $v : "'" . $v . "'", $text);
+                    }
                 }
                 
                 Yii::beginProfile($logTrace . ' <|#-SEPARATOR-#|> ' . $text . $par, 'system.db.CDbCommand.query');
             }
-
-
+            
 
             $this->prepare();
 
             if ($params === array())
                 $this->_statement->execute();
-            else
+            else {
+                foreach ($params as $k=>$p) {
+                    if (is_array($p)) {
+                        unset($params[$k]);
+                        $this->_statement = $this->getConnection()->getPdoInstance()->prepare($text);
+                        break;
+                    }
+                }
+                
                 $this->_statement->execute($params);
+            }
 
             if ($method === '')
                 $result = new CDbDataReader($this);
