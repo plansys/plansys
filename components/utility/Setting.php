@@ -31,7 +31,8 @@ class Setting {
             'timeFormat'     => 'H:i',
             'dateTimeFormat' => 'd M Y - H:i',
             'mode'           => 'prod',
-            'debug'          => 'OFF'
+            'debug'          => 'OFF',
+            'oAuthGoogle'    => 'OFF'
         ],
         'email' => [
             'transport' => [

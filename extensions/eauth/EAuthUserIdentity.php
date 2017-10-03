@@ -24,7 +24,7 @@ class EAuthUserIdentity extends CUserIdentity {
 	/**
 	 * @var string the unique identifier for the identity.
 	 */
-	private $id;
+	protected $id;
 
 	/**
 	 * @var string the display name for the identity.
@@ -50,30 +50,19 @@ class EAuthUserIdentity extends CUserIdentity {
 	 
 	public function authenticate() {
 		if ($this->service->isAuthenticated) {
-			$attributes = $this->service->getAttributes();
 			
-			$account = new GOauth();
-			
-			$account->gid = $attributes['id'];
-			$account->name = $attributes['name'];
-			$account->email = $attributes['email'];
-			
-			$account->regUser();
-			
-			$this->id = $account->id;
+			$this->id = $this->service->id;
 			$this->name = $this->service->getAttribute('name');
 			
-			$this->setState('id', $acc_id);
-			$this->setState('gid', $attributes['id']);
+			$this->setState('id', $this->id);
 			$this->setState('name', $this->name);
 			$this->setState('service', $this->service->serviceName);
 			
+			// You can save all given attributes in session.
+			//$attributes = $this->service->getAttributes();
+			//$session = Yii::app()->session;
+			//$session['eauth_attributes'][$this->service->serviceName] = $attributes;
 			
-			$this->setState('fullRole', $account->fullRole);
-            $this->setState('role', $account->role);
-            $this->setState('roleId', $account->roleId);
-  
-
 			$this->errorCode = self::ERROR_NONE;
 		}
 		else {
