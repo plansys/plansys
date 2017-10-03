@@ -122,7 +122,8 @@ class Controller extends CController {
 			$extension=$renderer->fileExtension;
 		else
 			$extension='.php';
-			
+		
+		
 		if($viewName[0]==='/')
 		{
 			if(strncmp($viewName,'//',2)===0) {
@@ -162,9 +163,18 @@ class Controller extends CController {
             $moduleViewPath = $module->getViewPath();
             $viewPath = $moduleViewPath . DIRECTORY_SEPARATOR . $this->id; 
         } 
+        
+		$unthemedViewPath = Yii::getPathOfAlias('app.views');
+		if (is_dir($unthemedViewPath) && is_null($module)) {
+		    $ctrlName = strtolower(substr(get_class($this), 0, -10));
+            $file = $unthemedViewPath . DIRECTORY_SEPARATOR . $ctrlName . DIRECTORY_SEPARATOR . $viewName . ".php";
+        
+            if (is_file($file)) {
+                return $file;
+            }
+		}
 
         $result = $this->resolveViewFile($viewName, $viewPath, $basePath, $moduleViewPath);
-        
         ## if file is not found, try in plansys theme dir
         if (!$result) {
             $basePath = Yii::getPathOfAlias('application.themes.' . Setting::getDefaultTheme() . '.views');
