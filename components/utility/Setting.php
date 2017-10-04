@@ -649,9 +649,9 @@ class Setting {
                 break;
             default:
                 if (@$db['port'] == null) {
-                    $connectionString = 'mysql:host=' . $db['host'] . ';dbname=' . $db['dbname'];
+                    $connectionString = $db['driver'] . ':host=' . $db['host'] . ';dbname=' . $db['dbname'];
                 } else {
-                    $connectionString = 'mysql:host=' . $db['host'] . ';port=' . $db['port'] . ';dbname=' . $db['dbname'];
+                    $connectionString = $db['driver'] . ':host=' . $db['host'] . ';port=' . $db['port'] . ';dbname=' . $db['dbname'];
                 }
                 $connection = [
                     'connectionString' => $connectionString,
@@ -670,15 +670,16 @@ class Setting {
         if (Setting::get('app.debug') == 'ON') {
             $connection['enableProfiling'] = true;
         }
-
+        
+        
         return $connection;
     }
 
     public static function getDBDriverList() {
         return [
             'mysql' => 'MySQL',
-            'oci'   => 'Oracle'
-                //  'pgsql' => 'PostgreSQL',
+            'oci'   => 'Oracle',
+            'pgsql' => 'PostgreSQL',
                 //  'sqlsrv' => 'SQL Server',
                 //  'sqlite' => 'SQLite',
         ];
