@@ -46,9 +46,7 @@ class DevSettingDatabaseItem extends DevSettingDatabase {
                     array (
                         'label' => 'Driver',
                         'name' => 'driver',
-                        'list' => array (
-                            'mysql' => 'MySQL',
-                        ),
+                        'listExpr' => 'Setting::getDBDriverList();',
                         'type' => 'DropDownList',
                     ),
                     array (

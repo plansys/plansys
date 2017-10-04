@@ -289,6 +289,7 @@ class CDbConnection extends CApplicationComponent
 		$this->connectionString=$dsn;
 		$this->username=$username;
 		$this->password=$password;
+		
 	}
 
 	/**
@@ -388,7 +389,9 @@ class CDbConnection extends CApplicationComponent
 			try
 			{
 				Yii::trace('Opening DB connection','system.db.CDbConnection');
+				
 				$this->_pdo=$this->createPdoInstance();
+				
 				$this->initConnection($this->_pdo);
 				$this->_active=true;
 			}
@@ -467,6 +470,7 @@ class CDbConnection extends CApplicationComponent
 			if(in_array($driver,array('pgsql','mysql','mysqli')))
 				$pdo->exec('SET NAMES '.$pdo->quote($this->charset));
 		}
+		
 		if($this->initSQLs!==null)
 		{
 			foreach($this->initSQLs as $sql)

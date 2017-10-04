@@ -286,7 +286,7 @@ $(window).resize(function() {
         } else {
             $('.dl-menu').height('auto');    
         }
-    }
+	}
 });
 
 
@@ -294,4 +294,3 @@ $(window).resize(function() {
 $(function() {
 	$( '#dl-menu' ).dlmenu();
 });
-
