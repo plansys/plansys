@@ -96,6 +96,7 @@ app.directive('checkBoxList', function ($timeout) {
                                     ar.splice(ar.indexOf(value), 1);
                                     $scope.selectedText = ar.join(",");
                                 } else {
+                                    value = value + '';
                                     ar.push(value.replace(/,/g, ''));
                                     $scope.selectedText = ar.join(",");
                                 }

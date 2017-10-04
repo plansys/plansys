@@ -12,6 +12,9 @@ class DevSettingApp extends Form {
     public $dateTimeFormat = 'd M Y - H:i';
     public $theme;
     public $auditTrail = 'Enabled';
+    public $oAuthGoogle = 'OFF';
+    public $oAuthGoogleId = '';
+    public $oAuthGoogleSecret = '';
     
     public $phpPath = '';
     
@@ -167,6 +170,58 @@ class DevSettingApp extends Form {
                         'onLabel' => 'Enabled',
                         'offLabel' => 'Disabled',
                         'type' => 'ToggleSwitch',
+                    ),
+                ),
+                'w1' => '50%',
+                'w2' => '50%',
+                'type' => 'ColumnField',
+            ),
+            array (
+                'title' => 'Google OAuth',
+                'type' => 'SectionHeader',
+            ),
+            array (
+                'column1' => array (
+                    array (
+                        'label' => 'Enable',
+                        'name' => 'oAuthGoogle',
+                        'type' => 'ToggleSwitch',
+                    ),
+                    array (
+                        'renderInEditor' => 'Yes',
+                        'type' => 'Text',
+                        'value' => '<div class=\"col-md-4\"></div>
+<div class=\"col-md-8\">
+    <small>
+        <i class=\"fa fa-info-circle \"></i> Open <a href=\"https://console.developers.google.com\" target=\"_blank\">Google Developer Console</a> to get <b>Credential</b>. Click <a href=\"https://developers.google.com/youtube/analytics/registering_an_application\"  target=\"_blank\">here</a> for more info. 
+    </small>
+</div>',
+                    ),
+                    array (
+                        'type' => 'Text',
+                        'value' => '<column-placeholder></column-placeholder>',
+                    ),
+                ),
+                'column2' => array (
+                    array (
+                        'label' => 'Client ID',
+                        'name' => 'oAuthGoogleId',
+                        'options' => array (
+                            'ng-if' => 'model.oAuthGoogle == \'ON\'',
+                        ),
+                        'type' => 'TextField',
+                    ),
+                    array (
+                        'label' => 'Client Key',
+                        'name' => 'oAuthGoogleSecret',
+                        'options' => array (
+                            'ng-if' => 'model.oAuthGoogle == \'ON\'',
+                        ),
+                        'type' => 'TextField',
+                    ),
+                    array (
+                        'type' => 'Text',
+                        'value' => '<column-placeholder></column-placeholder>',
                     ),
                 ),
                 'w1' => '50%',
