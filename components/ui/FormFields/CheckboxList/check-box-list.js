@@ -92,13 +92,18 @@ app.directive('checkBoxList', function ($timeout) {
                         
                         if (angular.isArray(ar)) {
                             if ($scope.mode == "Default") {
-                                if (ar.indexOf(value) >= 0) {
-                                    ar.splice(ar.indexOf(value), 1);
-                                    $scope.selectedText = ar.join(",");
-                                } else {
+                                if (value) {
+                                    if (ar.length === 1 && ar[0] == '0') {
+                                        ar.splice(0, 1);
+                                    }
                                     value = value + '';
-                                    ar.push(value.replace(/,/g, ''));
-                                    $scope.selectedText = ar.join(",");
+                                    if (ar.indexOf(value) >= 0) {
+                                        ar.splice(ar.indexOf(value), 1);
+                                        $scope.selectedText = ar.join(",");
+                                    } else {
+                                        ar.push(value.replace(/,/g, ''));
+                                        $scope.selectedText = ar.join(",");
+                                    }
                                 }
                             } else if ($scope.mode == "Relation") {
                                 // uncheck item
@@ -144,6 +149,7 @@ app.directive('checkBoxList', function ($timeout) {
                             }
                         }
                     }
+                    
                 }
 
                 // when ng-model, or ps-list is changed from outside directive

@@ -2,14 +2,9 @@
      <?php Asset::registerCSS('application.themes.flatwhite.views.css.bootstrap_min'); ?>
      <?php Asset::registerCSS('application.themes.flatwhite.views.css.fonts'); ?>
      <?php Asset::registerCSS('application.themes.flatwhite.views.css.ui'); ?>
-     <?php Asset::registerCSS('application.themes.flatwhite.views.css.default'); ?>
+     <?php Asset::registerCSS('application.themes.flatwhite.views.css.login'); ?>
      <?php Asset::registerCSS('application.themes.flatwhite.views.css.component'); ?>
-     <?php
-          // include(Yii::getPathOfAlias('application.themes.flatwhite.views') . '/vendor/autoload.php');
-          // $dir = Yii::getPathOfAlias('application.themes.flatwhite.views.css');
-          // $stylus = new NodejsPhpFallback\Stylus($dir . "/style.styl");
-          // $stylus->write($dir . "/style.css");
-     ?>
+
      <?php Asset::registerCSS('application.themes.flatwhite.views.css.style', time()); ?>
      
      <link rel="stylesheet" href="<?= Yii::app()->controller->staticUrl('/css/font-awesome.min.css'); ?>" type="text/css" />
@@ -30,6 +25,4 @@
      
      <?php Asset::registerJS('application.themes.flatwhite.views.js.mainctrl'); ?>
      <?php //Asset::registerJS('application.themes.flatwhite.views.js.headerctrl'); ?>
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>

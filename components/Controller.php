@@ -204,7 +204,6 @@ class Controller extends CController {
         elseif (($module = $this->getModule()) === null)
             $module = Yii::app();
         
-        
         return $this->resolveViewFile($layoutName, $module->getLayoutPath(), $this->getBaseViewPath(), $module->getViewPath());
     }
 

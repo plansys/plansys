@@ -96,7 +96,7 @@ if (Setting::get('app.oAuthGoogle') == "ON"){
 	    'class' => 'GoogleOAuthService',
 		'client_id' => Setting::get('app.oAuthGoogleId'),
 		'client_secret' => Setting::get('app.oAuthGoogleSecret'),
-		'title' => 'Google (OAuth)',
+		'title' => 'Sign in with Google',
 	    
 	 );
 }
