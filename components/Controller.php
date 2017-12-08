@@ -262,6 +262,7 @@ class Controller extends CController {
 
         if ($this->beforeRender($class)) {
             $layout = Layout::render($fb->form['layout']['name'], $data, $model, true);
+            
             $this->renderText($layout, false);
         }
     }

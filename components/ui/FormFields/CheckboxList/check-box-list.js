@@ -72,6 +72,7 @@ app.directive('checkBoxList', function ($timeout) {
                 
                 $scope.isChecked = function(value) {
                     if ($scope.mode == "Default") {
+                        value = value + "";
                         if ($scope.selected == null) return false;
                         return ($scope.selected.indexOf(value) > -1)
                     } else if ($scope.mode == "Relation") {
@@ -219,9 +220,12 @@ app.directive('checkBoxList', function ($timeout) {
                                 return(item.trim());
                             });
                         }
+                        
                         if ($scope.selected !== null && angular.isArray($scope.selected)) {
                             $scope.selectedText = $scope.selected.join(',');
                         }
+                        
+                        
                     }
                 });
             }
