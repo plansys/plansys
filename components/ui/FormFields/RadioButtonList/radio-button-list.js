@@ -8,7 +8,9 @@ app.directive('radioButtonList', function ($timeout) {
             }
 
             return function ($scope, $el, attrs, ctrl) {
+                var parent = $scope.getParent($scope);
                 $scope.name = $el.find("data[name=name]:eq(0)").text();
+                parent[$scope.name] = $scope;
 
                 // when ng-model is changed from inside directive
                 $scope.update = function (val) {

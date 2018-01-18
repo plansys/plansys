@@ -16,8 +16,14 @@ class DevSettingTheme extends Form {
                 'img' => Yii::app()->controller->staticUrl('/img/theme-placeholder.png')
             ];
         }
+        //cek dlu di app ada themes nggak
         
-        $pstheme = glob(Yii::getPathOfAlias('application.themes') . '/*');
+        $pstheme = glob(Yii::getPathOfAlias('app.themes') . '/*');
+        
+        if(empty($pstheme)){
+            $pstheme = glob(Yii::getPathOfAlias('application.themes') . '/*');    
+        }
+        
         foreach ($pstheme as $k=>$p) {
             $p = str_replace("\\", "/", $p);
             $name = explode("/", $p);

@@ -72,6 +72,7 @@ app.directive('checkBoxList', function ($timeout) {
                 
                 $scope.isChecked = function(value) {
                     if ($scope.mode == "Default") {
+                        value = value + "";
                         if ($scope.selected == null) return false;
                         return ($scope.selected.indexOf(value) > -1)
                     } else if ($scope.mode == "Relation") {
@@ -92,12 +93,18 @@ app.directive('checkBoxList', function ($timeout) {
                         
                         if (angular.isArray(ar)) {
                             if ($scope.mode == "Default") {
-                                if (ar.indexOf(value) >= 0) {
-                                    ar.splice(ar.indexOf(value), 1);
-                                    $scope.selectedText = ar.join(",");
-                                } else {
-                                    ar.push(value.replace(/,/g, ''));
-                                    $scope.selectedText = ar.join(",");
+                                if (value) {
+                                    if (ar.length === 1 && ar[0] == '0') {
+                                        ar.splice(0, 1);
+                                    }
+                                    value = value + '';
+                                    if (ar.indexOf(value) >= 0) {
+                                        ar.splice(ar.indexOf(value), 1);
+                                        $scope.selectedText = ar.join(",");
+                                    } else {
+                                        ar.push(value.replace(/,/g, ''));
+                                        $scope.selectedText = ar.join(",");
+                                    }
                                 }
                             } else if ($scope.mode == "Relation") {
                                 // uncheck item
@@ -143,6 +150,7 @@ app.directive('checkBoxList', function ($timeout) {
                             }
                         }
                     }
+                    
                 }
 
                 // when ng-model, or ps-list is changed from outside directive
@@ -212,9 +220,12 @@ app.directive('checkBoxList', function ($timeout) {
                                 return(item.trim());
                             });
                         }
+                        
                         if ($scope.selected !== null && angular.isArray($scope.selected)) {
                             $scope.selectedText = $scope.selected.join(',');
                         }
+                        
+                        
                     }
                 });
             }
