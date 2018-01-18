@@ -14,6 +14,7 @@ namespace PHP_CodeSniffer\Files;
 use PHP_CodeSniffer\Util;
 use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Config;
+use PHP_CodeSniffer\Exceptions\DeepExitException;
 
 class FileList implements \Iterator, \Countable
 {
@@ -23,7 +24,7 @@ class FileList implements \Iterator, \Countable
      *
      * @var array
      */
-    private $files = array();
+    private $files = [];
 
     /**
      * The number of files in the list.
@@ -51,7 +52,7 @@ class FileList implements \Iterator, \Countable
      *
      * @var array
      */
-    protected $ignorePatterns = array();
+    protected $ignorePatterns = [];
 
 
     /**
@@ -77,7 +78,7 @@ class FileList implements \Iterator, \Countable
 
                 $filterClass = $this->getFilterClass();
 
-                $di       = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $di       = new \RecursiveDirectoryIterator($path, (\RecursiveDirectoryIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS));
                 $filter   = new $filterClass($di, $path, $config, $ruleset);
                 $iterator = new \RecursiveIteratorIterator($filter);
 
@@ -118,7 +119,7 @@ class FileList implements \Iterator, \Countable
 
         $filterClass = $this->getFilterClass();
 
-        $di       = new \RecursiveArrayIterator(array($path));
+        $di       = new \RecursiveArrayIterator([$path]);
         $filter   = new $filterClass($di, $path, $this->config, $this->ruleset);
         $iterator = new \RecursiveIteratorIterator($filter);
 
@@ -146,8 +147,8 @@ class FileList implements \Iterator, \Countable
                 // This is a path to a custom filter class.
                 $filename = realpath($filterType);
                 if ($filename === false) {
-                    echo "ERROR: Custom filter \"$filterType\" not found".PHP_EOL;
-                    exit(3);
+                    $error = "ERROR: Custom filter \"$filterType\" not found".PHP_EOL;
+                    throw new DeepExitException($error, 3);
                 }
 
                 $filterClass = \PHP_CodeSniffer\Autoload::loadFile($filename);

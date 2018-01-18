@@ -191,6 +191,8 @@ class Statement extends PDOStatement
         foreach ($this->bindings as $binding) {
             if (is_object($binding)) {
                 $bindings[] = get_class($binding);
+            } elseif (is_array($binding)) {
+                $bindings[] = 'Array';
             } else {
                 $bindings[] = (string) $binding;
             }
@@ -246,7 +248,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -264,7 +266,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -279,7 +281,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -288,14 +290,14 @@ class Statement extends PDOStatement
 
             case PDO::FETCH_COLUMN:
                 $rs    = oci_fetch_row($this->sth);
-                $colno = (int) $this->fetchColNo;
-                if (is_array($rs) && array_key_exists($colno, $rs)) {
-                    $value = $rs[$colno];
+                $colNo = (int) $this->fetchColNo;
+                if (is_array($rs) && array_key_exists($colNo, $rs)) {
+                    $value = $rs[$colNo];
                     if (is_object($value)) {
-                        return $value->load();
-                    } else {
-                        return $value;
+                        return $this->loadLob($value);
                     }
+
+                    return $value;
                 } else {
                     return false;
                 }
@@ -351,7 +353,13 @@ class Statement extends PDOStatement
 
                     // convert LOB to string
                     if ($this->returnLobs && is_object($value)) {
-                        $object->$field = $value->load();
+                        $ociFieldIndex = is_int($field) ? $field : array_search($field, array_keys($rs));
+                        // oci field type index is base 1.
+                        if (oci_field_type($this->sth, $ociFieldIndex + 1) == 'ROWID') {
+                            throw new Oci8Exception('ROWID output is not yet supported. Please use ROWIDTOCHAR(ROWID) function as workaround.');
+                        } else {
+                            $object->$field = $this->loadLob($value);
+                        }
                     } else {
                         $object->$field = $value;
                     }
@@ -361,6 +369,21 @@ class Statement extends PDOStatement
         }
 
         return false;
+    }
+
+    /**
+     * Load a LOB object value.
+     *
+     * @param mixed $lob
+     * @return mixed
+     */
+    private function loadLob($lob)
+    {
+        try {
+            return $lob->load();
+        } catch (\Exception $e) {
+            return $lob;
+        }
     }
 
     /**
@@ -453,7 +476,7 @@ class Statement extends PDOStatement
         }
 
         if (is_array($variable)) {
-            return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $ociType);
+            return $this->bindArray($parameter, $variable, count($variable), $maxLength, $ociType);
         }
 
         $this->bindings[] = &$variable;

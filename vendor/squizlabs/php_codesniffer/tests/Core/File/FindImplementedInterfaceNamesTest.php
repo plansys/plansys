@@ -12,20 +12,21 @@ namespace PHP_CodeSniffer\Tests\Core\File;
 use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Files\DummyFile;
+use PHPUnit\Framework\TestCase;
 
-class FindImplementedInterfaceNamesTest extends \PHPUnit_Framework_TestCase
+class FindImplementedInterfaceNamesTest extends TestCase
 {
 
     /**
-     * The PHP_CodeSniffer_File object containing parsed contents of the test case file.
+     * The \PHP_CodeSniffer\Files\File object containing parsed contents of the test case file.
      *
-     * @var PHP_CodeSniffer_File
+     * @var \PHP_CodeSniffer\Files\File
      */
     private $phpcsFile;
 
 
     /**
-     * Initialize & tokenize PHP_CodeSniffer_File with code from the test case file.
+     * Initialize & tokenize \PHP_CodeSniffer\Files\File with code from the test case file.
      *
      * Methods used for these tests can be found in a test case file in the same
      * directory and with the same name, using the .inc extension.
@@ -35,7 +36,7 @@ class FindImplementedInterfaceNamesTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $config            = new Config();
-        $config->standards = array('Generic');
+        $config->standards = ['Generic'];
 
         $ruleset = new Ruleset($config);
 
@@ -75,7 +76,7 @@ class FindImplementedInterfaceNamesTest extends \PHPUnit_Framework_TestCase
         );
 
         $found = $this->phpcsFile->findImplementedInterfaceNames(($class + 2));
-        $this->assertSame(array('testFIINInterface'), $found);
+        $this->assertSame(['testFIINInterface'], $found);
 
     }//end testImplementedClass()
 
@@ -97,7 +98,7 @@ class FindImplementedInterfaceNamesTest extends \PHPUnit_Framework_TestCase
         );
 
         $found = $this->phpcsFile->findImplementedInterfaceNames(($class + 2));
-        $this->assertSame(array('testFIINInterface', 'testFIINInterface2'), $found);
+        $this->assertSame(['testFIINInterface', 'testFIINInterface2'], $found);
 
     }//end testMultiImplementedClass()
 
@@ -119,7 +120,7 @@ class FindImplementedInterfaceNamesTest extends \PHPUnit_Framework_TestCase
         );
 
         $found = $this->phpcsFile->findImplementedInterfaceNames(($class + 2));
-        $this->assertSame(array('\PHP_CodeSniffer\Tests\Core\File\testFIINInterface'), $found);
+        $this->assertSame(['\PHP_CodeSniffer\Tests\Core\File\testFIINInterface'], $found);
 
     }//end testNamespacedClass()
 

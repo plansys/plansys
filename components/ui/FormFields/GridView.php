@@ -46,9 +46,14 @@ class GridView extends FormField {
     public function actionTemplate($n, $c, $k, $p) {
         $fb = FormBuilder::load($c);
         $ff = $fb->findField(['name' => $n]);
+        
         $this->attributes = $ff;
         $this->prepareRender(json_decode($p, true));
         include("GridView/template_table.php");
+    }
+    
+    public function actionRetemplate($n, $c, $k, $p){
+        
     }
 
     public function actionEditHeader() {
@@ -67,7 +72,7 @@ class GridView extends FormField {
     }
 
     public function includeJS() {
-        return ['grid.v1.js'];
+        return ['grid.v2.js'];
     }
 
     public function prepareRender($overideParams = []) {
@@ -355,8 +360,10 @@ EOF;
 
     public function generateHeaders($mode, $cols = false) {
         $rowHeaders = isset($this->gridOptions['rowHeaders']) ? $this->gridOptions['rowHeaders'] * 1: 1; 
+
         $cols = !$cols ? $this->columns : $cols;
         $rowSpan = [];
+        
         ob_start();
         for($i = $rowHeaders; $i >=1; $i--) {
             echo ($mode== 'class' ? '<div class="tr">' : '<tr>'); 

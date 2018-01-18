@@ -877,7 +877,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                     }
 
                     $scope.data = angular.copy($scope.datasource.data);
-
+                    
                     for (i in $scope.data) {
                         for (b in $scope.columns) {
                             if ($scope.columns[b].name && !isNumber($scope.data[i][$scope.columns[b].name]) && !$scope.data[i][$scope.columns[b].name]
@@ -968,6 +968,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                 // Prepare to initialize data-table
                 $scope.notReady = true;
                 $timeout(function () {
+                    console.log($scope.datasource.data);
                     if (!$scope.loaded && ($scope.datasource.data.length > 0 || $scope.columns.length > 0)) {
                         $scope.notReady = false;
                         $scope.canAddRow = true;
@@ -981,7 +982,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                                 $scope.canAddRow = false;
                             }
                         }
-
+                
                         if ($scope.datasource.data.length > 0) {
                             prepareData();
                         }
@@ -1032,6 +1033,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                         $scope.dtGroups = null;
                         $scope.colAssembled = false;
                         $scope.data = $scope.datasource.data;
+                        console.log($scope.datasource.data.length);
                         if ($scope.datasource.data.length > 0) {
                             prepareData();
                         }
@@ -1110,6 +1112,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                     if ($scope.columns.length == 0 && $scope.datasource.data.length > 0) {
                         $scope.generateCols();
                     }
+                    console.log($scope.datasource.data);
                     $scope.assembleCols();
                     evalArray($scope.gridOptions);
 

@@ -8,6 +8,7 @@
     "box/spout": "^2.7",
     "inlinestyle/inlinestyle": "^1.2",
     "phpmailer/phpmailer": "^5.2",
-    "squizlabs/php_codesniffer": "3.*"
+    "squizlabs/php_codesniffer": "3.*",
+    "dompdf/dompdf": "dev-master"
   }
 }
