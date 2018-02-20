@@ -52,17 +52,17 @@ class CMysqlColumnSchema extends CDbColumnSchema
 	    if(gettype($value)===$this->type || $value===null || $value instanceof CDbExpression)
 	        return $value;
 	    
-	    if($value==='' && $this->allowNull)
+	    if($value ==='' && $this->allowNull)
 	        return $this->type==='string' ? '' : null;
-
-	    switch($this->type)
-	    {
+		
+		switch($this->type)
+    	{
 	        case 'string': return (string)$value;
 	        case 'integer': return (integer)$value;
 	        case 'boolean': return (boolean)$value;
 	        case 'double':
 	        default: return $value;
-	    }
+    	}
 	}
 	
 	/**

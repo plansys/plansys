@@ -1503,6 +1503,7 @@ class ActiveRecord extends CActiveRecord {
             $builder = $this->getCommandBuilder();
             $table   = $this->getTableSchema();
             $command = $builder->createInsertCommand($table, $this->getAttributes($attributes));
+            
             if ($command->execute()) {
                 $primaryKey = $table->primaryKey;
                 if ($table->sequenceName !== null) {

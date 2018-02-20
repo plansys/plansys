@@ -968,7 +968,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                 // Prepare to initialize data-table
                 $scope.notReady = true;
                 $timeout(function () {
-                    console.log($scope.datasource.data);
+                    // console.log($scope.datasource.data);
                     if (!$scope.loaded && ($scope.datasource.data.length > 0 || $scope.columns.length > 0)) {
                         $scope.notReady = false;
                         $scope.canAddRow = true;
@@ -1033,7 +1033,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                         $scope.dtGroups = null;
                         $scope.colAssembled = false;
                         $scope.data = $scope.datasource.data;
-                        console.log($scope.datasource.data.length);
+                        // console.log($scope.datasource.data.length);
                         if ($scope.datasource.data.length > 0) {
                             prepareData();
                         }
@@ -1112,7 +1112,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                     if ($scope.columns.length == 0 && $scope.datasource.data.length > 0) {
                         $scope.generateCols();
                     }
-                    console.log($scope.datasource.data);
+                    // console.log($scope.datasource.data);
                     $scope.assembleCols();
                     evalArray($scope.gridOptions);
 
@@ -1515,7 +1515,7 @@ app.directive('psDataTable', function ($timeout, $http, $compile, $filter, $q) {
                                     size: size,
                                     alias: $scope.modelClass
                                 })).success(function (data) {
-                                    console.log(data)
+                                    // console.log(data)
                                 });
                             }
 
