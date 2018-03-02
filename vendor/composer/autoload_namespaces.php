@@ -7,5 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Thrift' => array($vendorDir . '/plansys/thrift/lib'),
+    'JasperPHP' => array($vendorDir . '/cossou/jasperphp/src'),
     'InlineStyle' => array($vendorDir . '/inlinestyle/inlinestyle'),
 );

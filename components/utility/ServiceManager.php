@@ -253,7 +253,7 @@ class ServiceManager extends CComponent {
                          $i++;
                     }
                     
-                    if ($i >= 10) { # giveup after 3s sleep
+                    if ($i >= 1) { # giveup after 300ms sleep
                          break;
                     }
                }

@@ -46,7 +46,7 @@ func (p *program) Quit() {
 				log.Println(err)
 			}
 		}
-		service.Quit()
+		// service.Quit()
 	}
 }
 

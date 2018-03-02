@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"context"
 )
 
 type RunningInstance struct {
@@ -84,6 +85,17 @@ func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartCha
 				Name:                 "ImportData",
 				CommandPath:          "application.commands",
 				Command:              "ImportCommand",
+				Action:               "actionIndex",
+				Schedule:             "manual",
+				Period:               "",
+				InstanceMode:         "parallel",
+				SingleInstanceAction: "wait",
+				Status:               "ok",
+			}
+			service["ImportData"] = &svc.Service{
+				Name:                 "Jasper",
+				CommandPath:          "application.commands",
+				Command:              "JasperCommand",
 				Action:               "actionIndex",
 				Schedule:             "manual",
 				Period:               "",
@@ -167,7 +179,7 @@ func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartCha
 	return p
 }
 
-func (p *ServiceManagerHandler) Add(svc *svc.Service) (err error) {
+func (p *ServiceManagerHandler) Add(ctx context.Context, svc *svc.Service) (err error) {
 	p.Services[svc.Name] = svc
 
 	err = p.DB.Update(func(tx *buntdb.Tx) error {
@@ -179,7 +191,7 @@ func (p *ServiceManagerHandler) Add(svc *svc.Service) (err error) {
 	return err
 }
 
-func (p *ServiceManagerHandler) Remove(name string) (err error) {
+func (p *ServiceManagerHandler) Remove(ctx context.Context, name string) (err error) {
 	p.Stop(name)
 	delete(p.Services, name)
 
@@ -190,7 +202,7 @@ func (p *ServiceManagerHandler) Remove(name string) (err error) {
 	return err
 }
 
-func (p *ServiceManagerHandler) Start(name string, params string) (pid string, err error) {
+func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params string) (pid string, err error) {
 	if _, ok := p.Services[name]; !ok {
 		return "", nil
 	}
@@ -342,7 +354,7 @@ func (p *ServiceManagerHandler) Start(name string, params string) (pid string, e
 	return strconv.Itoa(cmd.Process.Pid), err
 }
 
-func (p *ServiceManagerHandler) Stop(name string) (err error) {
+func (p *ServiceManagerHandler) Stop(ctx context.Context, name string) (err error) {
 	for _, val := range p.RunningInstances {
 		if val.Instance.ServiceName == name {
 			p.StopInstance(val.Instance.Pid)
@@ -351,7 +363,7 @@ func (p *ServiceManagerHandler) Stop(name string) (err error) {
 	return nil
 }
 
-func (p *ServiceManagerHandler) StopInstance(pid string) (err error) {
+func (p *ServiceManagerHandler) StopInstance(ctx context.Context, pid string) (err error) {
 	if val, ok := p.RunningInstances[pid]; ok {
 		if val.Cmd.ProcessState == nil {
 			val.Cmd.Process.Kill()
@@ -360,14 +372,14 @@ func (p *ServiceManagerHandler) StopInstance(pid string) (err error) {
 	return nil
 }
 
-func (p *ServiceManagerHandler) GetInstance(pid string) (instance *svc.Instance, err error) {
+func (p *ServiceManagerHandler) GetInstance(ctx context.Context, pid string) (instance *svc.Instance, err error) {
 	if val, ok := p.RunningInstances[pid]; ok {
 		return val.Instance, nil
 	}
 	return nil, nil
 }
 
-func (p *ServiceManagerHandler) WsSend(tag string, msg string) (err error) {
+func (p *ServiceManagerHandler) WsSend(ctx context.Context, tag string, msg string) (err error) {
 
 	addr := "127.0.0.1:" + p.Port
 	transport, _ := thrift.NewTSocket(addr)
@@ -392,24 +404,24 @@ func (p *ServiceManagerHandler) WsSend(tag string, msg string) (err error) {
 	return err
 }
 
-func (p *ServiceManagerHandler) GetService(name string) (service *svc.Service, err error) {
+func (p *ServiceManagerHandler) GetService(ctx context.Context, name string) (service *svc.Service, err error) {
 	return p.Services[name], nil
 }
 
-func (p *ServiceManagerHandler) GetAllServices() (services map[string]*svc.Service, err error) {
+func (p *ServiceManagerHandler) GetAllServices() (ctx context.Context, services map[string]*svc.Service, err error) {
 	return p.Services, nil
 }
 
-func (p *ServiceManagerHandler) Cwd() (str string, err error) {
+func (p *ServiceManagerHandler) Cwd() (ctx context.Context, str string, err error) {
 	return p.Dir, err
 }
 
-func (p *ServiceManagerHandler) Quit() (err error) {
+func (p *ServiceManagerHandler) Quit() (ctx context.Context, err error) {
 	p.RestartChan <- true
 	return err
 }
 
-func (p *ServiceManagerHandler) SetView(name string, key string, value string) (err error) {
+func (p *ServiceManagerHandler) SetView(ctx context.Context, name string, key string, value string) (err error) {
 	if _, ok := p.Services[name]; ok {
 		if p.Services[name].View == nil {
 			p.Services[name].View = make(map[string]string)

@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "55925fb705fd5ff3bbe33903810f7fd5",
+    "hash": "318a7c9d64fd54cb37d7b9bcae08df12",
+    "content-hash": "6137092883836037d2aea0ccd2e11041",
     "packages": [
         {
             "name": "box/spout",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/box/spout.git",
-                "reference": "4a65466b6135d2aa28dd3bc52785a5e999f95fe8"
+                "reference": "3681a3421a868ab9a65da156c554f756541f452b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/box/spout/zipball/4a65466b6135d2aa28dd3bc52785a5e999f95fe8",
-                "reference": "4a65466b6135d2aa28dd3bc52785a5e999f95fe8",
+                "url": "https://api.github.com/repos/box/spout/zipball/3681a3421a868ab9a65da156c554f756541f452b",
+                "reference": "3681a3421a868ab9a65da156c554f756541f452b",
                 "shasum": ""
             },
             "require": {
-                "ext-simplexml": "*",
                 "ext-xmlreader": "*",
                 "ext-zip": "*",
                 "php": ">=5.4.0"
@@ -73,7 +73,48 @@
                 "write",
                 "xlsx"
             ],
-            "time": "2017-03-28T13:07:48+00:00"
+            "time": "2017-09-25 19:44:35"
+        },
+        {
+            "name": "cossou/jasperphp",
+            "version": "v2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cossou/JasperPHP.git",
+                "reference": "aa1b74d8b574f7728f29f50739da3a32a0782586"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cossou/JasperPHP/zipball/aa1b74d8b574f7728f29f50739da3a32a0782586",
+                "reference": "aa1b74d8b574f7728f29f50739da3a32a0782586",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "JasperPHP": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hélder Duarte",
+                    "email": "cossou@gmail.com"
+                }
+            ],
+            "description": "Create Reports in PHP with JasperReports",
+            "homepage": "https://github.com/cossou/JasperPHP",
+            "keywords": [
+                "jasper",
+                "jasperreports",
+                "java",
+                "pdf",
+                "reports"
+            ],
+            "time": "2017-12-07 11:46:28"
         },
         {
             "name": "inlinestyle/inlinestyle",
@@ -120,20 +161,20 @@
                 "email",
                 "inline"
             ],
-            "time": "2015-12-13T20:30:25+00:00"
+            "time": "2015-12-13 20:30:25"
         },
         {
             "name": "nikic/php-parser",
-            "version": "v3.0.5",
+            "version": "v3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "2b9e2f71b722f7c53918ab0c25f7646c2013f17d"
+                "reference": "579f4ce846734a1cf55d6a531d00ca07a43e3cda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/2b9e2f71b722f7c53918ab0c25f7646c2013f17d",
-                "reference": "2b9e2f71b722f7c53918ab0c25f7646c2013f17d",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/579f4ce846734a1cf55d6a531d00ca07a43e3cda",
+                "reference": "579f4ce846734a1cf55d6a531d00ca07a43e3cda",
                 "shasum": ""
             },
             "require": {
@@ -171,23 +212,24 @@
                 "parser",
                 "php"
             ],
-            "time": "2017-03-05T18:23:57+00:00"
+            "time": "2017-12-26 14:43:21"
         },
         {
             "name": "phpmailer/phpmailer",
-            "version": "v5.2.23",
+            "version": "v5.2.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "7115df4a6f76281109ebe352900c42403b728bb4"
+                "reference": "70362997bda4376378be7d92d81e2200550923f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/7115df4a6f76281109ebe352900c42403b728bb4",
-                "reference": "7115df4a6f76281109ebe352900c42403b728bb4",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/70362997bda4376378be7d92d81e2200550923f7",
+                "reference": "70362997bda4376378be7d92d81e2200550923f7",
                 "shasum": ""
             },
             "require": {
+                "ext-ctype": "*",
                 "php": ">=5.0.0"
             },
             "require-dev": {
@@ -247,7 +289,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2017-03-15T19:32:56+00:00"
+            "time": "2017-11-04 09:26:05"
         },
         {
             "name": "plansys/thrift",
@@ -288,20 +330,20 @@
             "keywords": [
                 "thrift"
             ],
-            "time": "2017-04-05T23:17:16+00:00"
+            "time": "2017-04-05 23:17:16"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.0.0",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "b95ff2c3b122a3ee4b57d149a57d2afce65522c3"
+                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b95ff2c3b122a3ee4b57d149a57d2afce65522c3",
-                "reference": "b95ff2c3b122a3ee4b57d149a57d2afce65522c3",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
+                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
                 "shasum": ""
             },
             "require": {
@@ -311,7 +353,7 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0"
             },
             "bin": [
                 "bin/phpcs",
@@ -339,29 +381,29 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-05-04T00:33:04+00:00"
+            "time": "2017-12-19 21:44:46"
         },
         {
             "name": "symfony/css-selector",
-            "version": "v3.3.0",
+            "version": "v4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
-                "reference": "4d882dced7b995d5274293039370148e291808f2"
+                "reference": "f97600434e3141ef3cbb9ea42cf500fba88022b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/4d882dced7b995d5274293039370148e291808f2",
-                "reference": "4d882dced7b995d5274293039370148e291808f2",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/f97600434e3141ef3cbb9ea42cf500fba88022b7",
+                "reference": "f97600434e3141ef3cbb9ea42cf500fba88022b7",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5.9"
+                "php": "^7.1.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "4.0-dev"
                 }
             },
             "autoload": {
@@ -392,24 +434,24 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "https://symfony.com",
-            "time": "2017-05-01T15:01:29+00:00"
+            "time": "2018-01-03 07:38:00"
         },
         {
             "name": "yajra/laravel-pdo-via-oci8",
-            "version": "v1.3.1",
+            "version": "v1.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/pdo-via-oci8.git",
-                "reference": "b3e52482af67770a0b3ea620f11ba0a1b38b4afd"
+                "reference": "b3a86f9f5ecb5b05e497bbbfef13e33ae201a417"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/pdo-via-oci8/zipball/b3e52482af67770a0b3ea620f11ba0a1b38b4afd",
-                "reference": "b3e52482af67770a0b3ea620f11ba0a1b38b4afd",
+                "url": "https://api.github.com/repos/yajra/pdo-via-oci8/zipball/b3a86f9f5ecb5b05e497bbbfef13e33ae201a417",
+                "reference": "b3a86f9f5ecb5b05e497bbbfef13e33ae201a417",
                 "shasum": ""
             },
             "require-dev": {
-                "phpunit/phpunit": "4.0.*"
+                "phpunit/phpunit": "^6.4"
             },
             "type": "library",
             "autoload": {
@@ -428,7 +470,7 @@
                 }
             ],
             "description": "PDO userspace driver proxying calls to PHP OCI8 driver",
-            "time": "2017-02-02T02:51:53+00:00"
+            "time": "2018-01-04 07:20:53"
         }
     ],
     "packages-dev": [],

@@ -186,25 +186,31 @@ class DataFilter extends FormField {
                     $sCol = DataFilter::toSQLStr("{$column}", $driver);
                     $spCol = DataFilter::toSQLStr(":{$paramName}_{$pcolumn}", $driver);
 
+                    $like = "LIKE";
+                    # if this is postgre
+                    if ($driver === 'pgsql') {
+                        $like = "ILIKE";
+                    }
+
                     switch ($filter['operator']) {
                         case "Contains":
-                            $sql = "{$sCol} LIKE {$spCol}";
+                            $sql = "{$sCol} {$like} {$spCol}";
                             $param = "%{$filter['value']}%";
                             break;
                         case "Does Not Contain":
-                            $sql = "{$sCol} NOT LIKE {$spCol}";
+                            $sql = "{$sCol} NOT {$like} {$spCol}";
                             $param = "%{$filter['value']}%";
                             break;
                         case "Is Equal To":
-                            $sql = "{$sCol} LIKE {$spCol}";
+                            $sql = "{$sCol} {$like} {$spCol}";
                             $param = "{$filter['value']}";
                             break;
                         case "Starts With":
-                            $sql = "{$sCol} LIKE {$spCol}";
+                            $sql = "{$sCol} {$like} {$spCol}";
                             $param = "{$filter['value']}%";
                             break;
                         case "Ends With":
-                            $sql = "{$sCol} LIKE {$spCol}";
+                            $sql = "{$sCol} {$like} {$spCol}";
                             $param = "%{$filter['value']}";
                             break;
                         case "Is Any Of":
@@ -214,7 +220,7 @@ class DataFilter extends FormField {
                             foreach ($param_raw as $k => $p) {
                                 $param[":{$paramName}_{$pcolumn}_{$k}"] = "%{$p}%";
                                 $spCol = DataFilter::toSQLStr(":{$paramName}_{$pcolumn}_{$k}", $driver);
-                                $psql[] = "{$sCol} LIKE {$spCol}";
+                                $psql[] = "{$sCol} {$like} {$spCol}";
                             }
                             $sql = "(" . implode(" OR ", $psql) . ")";
                             break;
@@ -225,15 +231,15 @@ class DataFilter extends FormField {
                             foreach ($param_raw as $k => $p) {
                                 $param[":{$paramName}_{$pcolumn}_{$k}"] = "%{$p}%";
                                 $spCol = DataFilter::toSQLStr(":{$paramName}_{$pcolumn}_{$k}", $driver);
-                                $psql[] = "{$sCol} LIKE {$spCol}";
+                                $psql[] = "{$sCol} {$like} {$spCol}";
                             }
                             $sql = "(" . implode(" AND ", $psql) . ")";
                             break;
                         case "Is Empty":
-                            $sql = "({$column} LIKE '' OR {$column} IS NULL)";
+                            $sql = "({$column} {$like} '' OR {$column} IS NULL)";
                             break;
                         case "Is Not Empty":
-                            $sql = "({$column} NOT LIKE '' AND {$column} IS NOT NULL)";
+                            $sql = "({$column} NOT {$like} '' AND {$column} IS NOT NULL)";
                             break;
                     }
                 }
@@ -324,7 +330,7 @@ class DataFilter extends FormField {
                 break;
             case "list":
                 if (isset($filter['value']) && $filter['value'] != '') {
-                    $sql = "{$column} LIKE :{$paramName}_{$pcolumn}";
+                    $sql = "{$column} ILIKE :{$paramName}_{$pcolumn}";
                     $param = @$filter['value'];
                 }
                 break;
@@ -359,12 +365,12 @@ class DataFilter extends FormField {
                         }
                         $sql = "{$column} IN (" . implode(", ", $psql) . ")";
                     } else {
-                        // USING LIKE...
+                        // USING ILIKE...
                         $param = [];
                         $psql = [];
                         foreach ($filter['value'] as $k => $p) {
                             $param[":{$paramName}_{$pcolumn}_{$k}"] = "%{$p}%";
-                            $psql[] = "{$column} LIKE :{$paramName}_{$pcolumn}_{$k}";
+                            $psql[] = "{$column} ILIKE :{$paramName}_{$pcolumn}_{$k}";
                         }
                         $sql = "(" . implode(" AND ", $psql) . ")";
                     }

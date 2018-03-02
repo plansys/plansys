@@ -128,8 +128,7 @@ class RowIterator implements IteratorInterface
     {
         $this->xmlReader->close();
 
-        $sheetDataFilePath = 'zip://' . $this->filePath . '#' . $this->sheetDataXMLFilePath;
-        if ($this->xmlReader->open($sheetDataFilePath) === false) {
+        if ($this->xmlReader->openFileInZip($this->filePath, $this->sheetDataXMLFilePath) === false) {
             throw new IOException("Could not open \"{$this->sheetDataXMLFilePath}\".");
         }
 
@@ -260,6 +259,7 @@ class RowIterator implements IteratorInterface
     {
         $currentColumnIndex = $this->getColumnIndex($xmlReader);
 
+        // NOTE: expand() will automatically decode all XML entities of the child nodes
         $node = $xmlReader->expand();
         $this->currentlyProcessedRowData[$currentColumnIndex] = $this->getCellValue($node);
         $this->lastColumnIndexProcessed = $currentColumnIndex;
@@ -348,7 +348,7 @@ class RowIterator implements IteratorInterface
      */
     protected function isEmptyRow($rowData)
     {
-        return (count($rowData) === 1 && $rowData[0] === '');
+        return (count($rowData) === 1 && key($rowData) === '');
     }
 
     /**

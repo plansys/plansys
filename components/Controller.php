@@ -211,6 +211,15 @@ class Controller extends CController {
         return Setting::getViewPath();
     }
 
+    public function renderJasper($name, $params) {
+        $controller = Yii::app()->createController('sys/jasper');  
+        $jc = $controller[0]; 
+        $_GET['name'] = $name;
+        $jca = $jc->createAction("view");
+        $jc->action = $jca;
+        $jc->actionView($params, true);
+    }
+
     public function renderForm($class, $model = null, $params = [], $options = []) {
         if (is_array($model)) {
             $options = $params;
@@ -231,7 +240,7 @@ class Controller extends CController {
         ## set page title & layout to options
         $this->pageTitle = isset($options['pageTitle']) ? $options['pageTitle'] : @$fb->form['title'];
         $this->layout    = isset($options['layout']) ? $options['layout'] : $this->layout;
-
+        
         $renderOptions = [
             'wrapForm' => true,
             'action'   => $this->action->id,
@@ -500,6 +509,7 @@ class Controller extends CController {
     }
     
     protected function beforeAction($action) {
+        
         ## Make sure service daemon is started
         ServiceManager::startDaemon();
 

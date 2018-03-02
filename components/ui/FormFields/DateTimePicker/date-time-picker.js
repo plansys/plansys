@@ -9,7 +9,6 @@ app.directive('dateTimePicker', function ($timeout, dateFilter) {
             }
 
             return function ($scope, $el, attrs, ctrl) {
-                
                 // when ng-model is changed from inside directive
                 $scope.update = function (updateVM) {
                     switch ($scope.fieldType) {
@@ -19,13 +18,14 @@ app.directive('dateTimePicker', function ($timeout, dateFilter) {
                             break;
                         case 'datepicker':
                             $scope.value = $scope.date;
+                            updateVM = false;
                             break;
                         case 'time':
                             var time = dateFilter($scope.time, 'HH:mm:00');
                             $scope.value = time;
                             break;
                     }
-
+                    
                     if (!!ctrl) {
                         $el.find('ul[datepicker-popup-wrap]').hide();
                         if (!!updateVM) {

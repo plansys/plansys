@@ -477,6 +477,7 @@ app.directive('psDataSource', function ($timeout, $http, $q) {
                             }  
                         } else if ($scope.trackChanges) {
                             var df = diff($scope.original, newval);
+                            
                             // Generate UpdateData Hash (to enable faster primary key look up)
                             var updateHash = {};
                             for (i in $scope.updateData) {

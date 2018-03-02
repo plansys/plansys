@@ -260,8 +260,7 @@
 $(function getTime() {
     $.getJSON(Yii.app.createUrl('/sys/profile/appSetting'), function(res){
         var tick = function() {
-            var d = new Date();
-            //console.log(d.getSeconds());
+            var d = new Date();            
             if (d.getSeconds() % 2 == 0) {
                 $("#jam").html(date(res.timeFormat).replace(':', '<span class="white">:</span>'))
             } else {

@@ -2,36 +2,38 @@
 
 use PhpParser\ParserFactory;
 
-class ActiveRecord extends CActiveRecord {
+class ActiveRecord extends CActiveRecord
+{
 
     const DEFAULT_PAGE_SIZE = 25;
-    const BELONGS_TO        = 'CBelongsToRelation';
-    const HAS_ONE           = 'CHasOneRelation';
-    const HAS_MANY          = 'CHasManyRelation';
-    const MANY_MANY         = 'ManyManyRelation';
-    const STAT              = 'CStatRelation';
+    const BELONGS_TO = 'CBelongsToRelation';
+    const HAS_ONE = 'CHasOneRelation';
+    const HAS_MANY = 'CHasManyRelation';
+    const MANY_MANY = 'ManyManyRelation';
+    const STAT = 'CStatRelation';
 
-    protected $_softDelete      = [];
-    private $__relations        = [];
-    private $__relationsObj     = [];
+    protected $_softDelete = [];
+    private $__relations = [];
+    private $__relationsObj = [];
     private $__isRelationLoaded = false;
-    private $__pageSize         = [];
-    private $__page             = [];
-    private $__relInsert        = [];
-    private $__relUpdate        = [];
-    private $__relDelete        = [];
-    private $__relReset         = [];
-    private $__tempVar          = [];
-    private $__relUploadField   = [];
-    private $__subRelations     = [];
-    private static $_md         = array();   // class name => meta data
+    private $__pageSize = [];
+    private $__page = [];
+    private $__relInsert = [];
+    private $__relUpdate = [];
+    private $__relDelete = [];
+    private $__relReset = [];
+    private $__tempVar = [];
+    private $__relUploadField = [];
+    private $__subRelations = [];
+    private static $_md = array();   // class name => meta data
 
     /**
      * Return properly quoted/escaped column name
      * @param string $col column name like "id" or "t.id"
      */
 
-    public function quoteCol($col) {
+    public function quoteCol($col)
+    {
         return $this->getDbConnection()->quoteColumnName($col);
     }
 
@@ -39,24 +41,29 @@ class ActiveRecord extends CActiveRecord {
      * Return properly quoted table name
      * @param string $name Table name
      */
-    public function quoteTable($t) {
+    public function quoteTable($t)
+    {
         return $this->getDbConnection()->quoteTableName($t);
     }
 
-    public static function execute($sql, $params = []) {
+    public static function execute($sql, $params = [])
+    {
         return Yii::app()->db->createCommand($sql)->execute($params);
     }
 
-    public static function queryScalar($sql, $params = []) {
+    public static function queryScalar($sql, $params = [])
+    {
         return Yii::app()->db->createCommand($sql)->queryScalar($params);
     }
 
-    public static function queryColumn($sql, $params = []) {
+    public static function queryColumn($sql, $params = [])
+    {
         return Yii::app()->db->createCommand($sql)->queryColumn($params);
     }
 
-    public static function jsonToArray(&$post, $key, $shouldReturn = false, $flattenPost = false) {
-        $new                  = [];
+    public static function jsonToArray(&$post, $key, $shouldReturn = false, $flattenPost = false)
+    {
+        $new = [];
         if (isset($post[$key . 'Insert']) && is_string($post[$key . 'Insert']))
             $new[$key . 'Insert'] = json_decode($post[$key . 'Insert'], true);
 
@@ -84,7 +91,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function formatSingleDataCol($str, $type, $driver) {
+    public static function formatSingleDataCol($str, $type, $driver)
+    {
         switch ($type) {
             case "datetime":
                 if ($driver == "oci") {
@@ -99,14 +107,24 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function formatSingleCriteria($str, $driver) {
+    public static function formatSingleCriteria($str, $driver)
+    {
         switch ($driver) {
+            
+            case "pgsql":
+                $split = explode(".", $str);
+                foreach ($split as $k => $s) {
+                    $split[$k] = '' . $s . '';
+                }
+                $str = implode(".", $split);
+                return $str;
+                break;
             case "oci":
                 $split = explode(".", $str);
                 foreach ($split as $k => $s) {
                     $split[$k] = '"' . $s . '"';
                 }
-                $str   = implode(".", $split);
+                $str = implode(".", $split);
                 return $str;
                 break;
             default:
@@ -120,7 +138,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function formatCriteria($criteria, $driver = null) {
+    public static function formatCriteria($criteria, $driver = null)
+    {
         if (is_null($driver)) {
             $driver = Setting::get('db.driver');
         }
@@ -135,7 +154,7 @@ class ActiveRecord extends CActiveRecord {
                 //     $e[$m] = self::formatSingleCriteria($f, $driver);
                 // }
                 // $e = implode(" ", $e);
-                $e        = self::formatSingleCriteria($e, $driver);
+                $e = self::formatSingleCriteria($e, $driver);
                 $criteria = str_replace("|{$segment[1][$l]}|", $e, $criteria);
             }
         } else if (is_array($criteria)) {
@@ -149,7 +168,7 @@ class ActiveRecord extends CActiveRecord {
                         //     $e[$m] = self::formatSingleCriteria($f, $driver);
                         // }
                         // $e = implode(" ", $e);
-                        $e            = self::formatSingleCriteria($e, $driver);
+                        $e = self::formatSingleCriteria($e, $driver);
                         $criteria[$k] = str_replace("|{$segment[1][$l]}|", $e, $criteria[$k]);
                     }
                 }
@@ -158,7 +177,8 @@ class ActiveRecord extends CActiveRecord {
         return $criteria;
     }
 
-    public static function formatRelationDef($relations, $driver = null) {
+    public static function formatRelationDef($relations, $driver = null)
+    {
         if (is_null($driver)) {
             $driver = Setting::get('db.driver');
         }
@@ -169,7 +189,8 @@ class ActiveRecord extends CActiveRecord {
         return $relations;
     }
 
-    public static function flattenPost(&$post, $key, $shouldReturn = false) {
+    public static function flattenPost(&$post, $key, $shouldReturn = false)
+    {
         $new = [];
         if (is_array($post[$key . 'Insert']) && is_array($post[$key . 'Update'])) {
             $new = array_merge($post[$key . 'Insert'], $post[$key . 'Update']);
@@ -203,7 +224,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function toArray($models = []) {
+    public static function toArray($models = [])
+    {
         $result = [];
         foreach ($models as $k => $m) {
             $result[$k] = $m->attributes;
@@ -215,27 +237,30 @@ class ActiveRecord extends CActiveRecord {
      * Returns the static model of the specified AR class.
      * @return the static model class
      */
-    public static function model($className = null) {
+    public static function model($className = null)
+    {
         if (is_null($className)) {
             $className = get_called_class();
         }
         return parent::model($className);
     }
 
-    public static function batchPost($model, $post, $name, $attr = []) {
-        if (is_object($model) && is_subclass_of($model, 'ActiveRecord')) {
-            $model->attributes = [
-                'currentModelInsert' => $post[$name . 'Insert'],
-                'currentModelUpdate' => $post[$name . 'Update'],
-                'currentModelDelete' => $post[$name . 'Delete'],
-            ];
-            if ($model->validate()) {
-                $model->saveRelation();
-                return $model;
-            } else {
-                return $model;
-            }
-        } elseif (is_string($model)) {
+    public static function batchPost($model, $post, $name, $attr = [])
+    {
+        // if (is_object($model) && is_subclass_of($model, 'ActiveRecord')) {
+        //     $model->attributes = [
+        //         'currentModelInsert' => $post[$name . 'Insert'],
+        //         'currentModelUpdate' => $post[$name . 'Update'],
+        //         'currentModelDelete' => $post[$name . 'Delete'],
+        //     ];
+            
+        //     if ($model->validate()) {
+        //         $model->saveRelation();
+        //         return $model;
+        //     } else {
+        //         return $model;
+        //     }
+        // } elseif (is_string($model)) {
             $cols = array_keys($attr);
 
             ## insert
@@ -300,10 +325,12 @@ class ActiveRecord extends CActiveRecord {
             if (count(@$post[$name . 'Delete']) > 0) {
                 ActiveRecord::batchDelete($model, $post[$name . 'Delete']);
             }
-        }
+        // }
+        return $model;
     }
 
-    public static function batchInsert($modelClass, &$data, $assignNewID = true) {
+    public static function batchInsert($modelClass, &$data, $assignNewID = true)
+    {
         if (!is_array($data) || count($data) == 0)
             return;
 
@@ -313,11 +340,13 @@ class ActiveRecord extends CActiveRecord {
         if (!@class_exists($modelClass)) {
             $table = $modelClass;
         } else {
-            $model  = $modelClass::model();
+            $model = $modelClass::model();
             $schema = $model->tableSchema;
-            $table  = $schema->name;
+            $schemaClass = get_class($schema);
+            $table = $schema->name;
+            
 
-            if (get_class($schema) == 'COciTableSchema') {
+            if ($schemaClass == 'COciTableSchema') {
                 $formatType = [];
                 foreach ($schema->columns as $k => $c) {
                     if (substr($c->dbType, 0, 9) == "TIMESTAMP") {
@@ -336,16 +365,31 @@ class ActiveRecord extends CActiveRecord {
                         throw new CException("data must be two-dimensional array");
                     }
                 }
+            } else if ($schemaClass == 'CPgsqlTableSchema') {
+                $pk = $schema->primaryKey;
+                if ($pk) {
+                    foreach($formattedData as $idx => $row) {
+                        if (array_key_exists($pk, $row) && is_null($row[$pk])) {
+                            unset($formattedData[$idx][$pk]);
+                        }   
+                    }
+                }
             }
         }
 
+        
         $builder = Yii::app()->db->schema->commandBuilder;
         $command = $builder->createMultipleInsertCommand($table, $formattedData);
-        $result  = $command->execute();
+        $result = $command->execute();
 
         if ($assignNewID && !!$model) {
-            if (get_class($schema) != 'COciTableSchema') {
-                $id = Yii::app()->db->getLastInsertID();
+            $schemaClass = get_class($schema);
+            if ($schemaClass != 'COciTableSchema') {
+                if ($schemaClass == 'CPgsqlTableSchema') {
+                    $id = Yii::app()->db->getLastInsertID($schema->sequenceName);
+                } else {
+                    $id = Yii::app()->db->getLastInsertID();
+                }
                 $pk = $model->tableSchema->primaryKey;
                 if (!is_array($pk)) {
                     foreach ($data as $k => $d) {
@@ -357,19 +401,21 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function batchUpdate($model, $data) {
+    public static function batchUpdate($model, $data)
+    {
         if (!is_array($data) || count($data) == 0) {
             throw new Exception("\$data is not an Array.");
         }
 
-        $isModelExist = class_exists($model);
+        
+        $isModelExist = is_object($model) ? true : class_exists($model);
         if (!@$isModelExist) {
             $schema = Yii::app()->db->schema->getTable($model);
         } else {
             $schema = $model::model()->tableSchema;
         }
 
-        $pk    = $schema->primaryKey;
+        $pk = $schema->primaryKey;
         $table = $schema->name;
         $field = $schema->columns;
 
@@ -382,11 +428,11 @@ class ActiveRecord extends CActiveRecord {
         }
 
         $columnCount = count($field);
-        $columnName  = array_keys($field);
-        $update      = "";
+        $columnName = array_keys($field);
+        $update = "";
 
         if ($isModelExist) {
-            $rels        = $model::model()->relations();
+            $rels = $model::model()->relations();
             $foreignKeys = [];
             foreach ($rels as $r) {
                 if ($r[0] == 'CBelongsToRelation' && is_string($r[2])) {
@@ -449,15 +495,16 @@ class ActiveRecord extends CActiveRecord {
                 if (is_array($cond)) {
                     $cond = implode(" AND ", $cond);
                 }
-                $update  = "UPDATE |{$table}| SET {$updatesql} WHERE $cond";
-                $update  = ActiveRecord::formatCriteria($update);
+                $update = "UPDATE |{$table}| SET {$updatesql} WHERE $cond";
+                $update = ActiveRecord::formatCriteria($update);
                 $command = Yii::app()->db->createCommand($update);
                 $command->execute();
             }
         }
     }
 
-    public static function batchDelete($model, $data, $options = []) {
+    public static function batchDelete($model, $data, $options = [])
+    {
         if (!is_array($data) || count($data) == 0)
             return;
 
@@ -466,7 +513,7 @@ class ActiveRecord extends CActiveRecord {
             $table = $options['table'];
         } else {
             $instance = $model::model();
-            $table    = $instance->tableSchema->name;
+            $table = $instance->tableSchema->name;
         }
 
         if (isset($options['pk'])) {
@@ -492,7 +539,7 @@ class ActiveRecord extends CActiveRecord {
             $condition = str_replace(":ids", $idsString, $condition);
 
             if (empty($instance->_softDelete)) {
-                $sql     = "DELETE FROM {$table} WHERE $condition;";
+                $sql = "DELETE FROM {$table} WHERE $condition;";
                 $command = Yii::app()->db->createCommand($sql);
 
                 try {
@@ -508,7 +555,7 @@ class ActiveRecord extends CActiveRecord {
                 $params = [];
                 foreach ($ids as $id) {
                     $params[] = [
-                        $pk                              => $id,
+                        $pk => $id,
                         $instance->_softDelete['column'] => $instance->_softDelete['value']
                     ];
                 }
@@ -517,7 +564,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public static function batch($model, $new, $old = [], $delete = true) {
+    public static function batch($model, $new, $old = [], $delete = true)
+    {
         $deleteArr = [];
         $updateArr = [];
 
@@ -528,26 +576,26 @@ class ActiveRecord extends CActiveRecord {
             $is_updated = false;
             foreach ($new as $i => $j) {
                 if (@$j[$pk] == @$v[$pk]) {
-                    
+
                     $is_deleted = false;
                     if (is_array($j) && is_array($v)) {
-                        
+
                         ## kalau ada isinya $v yg array, maka dihapus
                         foreach ($j as $ji => $jv) {
                             if (is_array($jv)) {
                                 unset($j[$ji]);
                             }
                         }
-                        
+
                         ## kalau ada isinya $j yg array, maka dihapus
                         foreach ($v as $vi => $vv) {
                             if (is_array($vv)) {
                                 unset($v[$vi]);
                             }
                         }
-                        
+
                         if (count(array_diff_assoc($j, $v)) > 0) {
-                            $is_updated  = true;
+                            $is_updated = true;
                             $updateArr[] = $j;
                         }
                     }
@@ -585,14 +633,16 @@ class ActiveRecord extends CActiveRecord {
         return array_merge($insertArr, $updateArr);
     }
 
-    public static function listTables() {
+    public static function listTables()
+    {
         $connection = Yii::app()->db;
-        $dbSchema   = $connection->schema;
-        $tables     = $dbSchema->getTables();
+        $dbSchema = $connection->schema;
+        $tables = $dbSchema->getTables();
         return array_keys($tables);
     }
 
-    public static function listData($idField, $valueField, $criteria = []) {
+    public static function listData($idField, $valueField, $criteria = [])
+    {
 
         if (is_bool($criteria)) {
             $criteria = [
@@ -604,7 +654,8 @@ class ActiveRecord extends CActiveRecord {
         return CHtml::listData($class::model()->findAll($criteria), $idField, $valueField);
     }
 
-    public function __call($name, $args) {
+    public function __call($name, $args)
+    {
         $this->initRelation();
 
         if (isset($this->__relations[$name])) {
@@ -621,7 +672,7 @@ class ActiveRecord extends CActiveRecord {
                 if (isset($opt['page'])) {
                     $this->__page[$name] = $opt['page'];
                     unset($opt['page']);
-                    $setRelPaging        = true;
+                    $setRelPaging = true;
                 }
 
                 if (isset($opt['pageSize'])) {
@@ -644,7 +695,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    private function initRelation() {
+    private function initRelation()
+    {
         $static = !(isset($this) && get_class($this) == get_called_class());
         if (!$static && !$this->__isRelationLoaded) {
             ## define all relations BUT do not load it on init
@@ -653,22 +705,24 @@ class ActiveRecord extends CActiveRecord {
                 $this->__relations[$k] = [];
             }
             $this->__relations['currentModel'] = [];
-            $this->__isRelationLoaded          = true;
+            $this->__isRelationLoaded = true;
         }
     }
 
-    private function relPagingCriteria($name) {
-        $page     = @$this->__page[$name] ? $this->__page[$name] : 1;
+    private function relPagingCriteria($name)
+    {
+        $page = @$this->__page[$name] ? $this->__page[$name] : 1;
         $pageSize = $this->{$name . 'PageSize'};
-        $start    = ($page - 1) * $pageSize;
+        $start = ($page - 1) * $pageSize;
 
         return [
-            'limit'  => $pageSize,
+            'limit' => $pageSize,
             'offset' => $start
         ];
     }
 
-    public function getMetaData() {
+    public function getMetaData()
+    {
         $className = get_class($this);
         if (!array_key_exists($className, self::$_md)) {
             self::$_md[$className] = null; // preventing recursive invokes of {@link getMetaData()} via {@link __get()}
@@ -677,7 +731,8 @@ class ActiveRecord extends CActiveRecord {
         return self::$_md[$className];
     }
 
-    private function loadSubRelation($tree, $first = true) {
+    private function loadSubRelation($tree, $first = true)
+    {
         $result = [];
         foreach ($tree as $k => $v) {
             $rel = $k;
@@ -689,7 +744,7 @@ class ActiveRecord extends CActiveRecord {
                 $this->__subRelations[$k] = $v;
             }
 
-            $rels         = $this->getRelated($rel);
+            $rels = $this->getRelated($rel);
             $result[$rel] = self::toArray($rels);
 
             if (is_array($v)) {
@@ -718,11 +773,13 @@ class ActiveRecord extends CActiveRecord {
         return $result;
     }
 
-    public function setRelation($name, $value) {
+    public function setRelation($name, $value)
+    {
         $this->_related[$name] = $value;
     }
 
-    public function loadRelation($name, $criteria = []) {
+    public function loadRelation($name, $criteria = [])
+    {
 
         if (is_array($name)) {
             $result = $this->loadSubRelation($name);
@@ -741,16 +798,16 @@ class ActiveRecord extends CActiveRecord {
         if ($name == 'currentModel' || is_null($name)) {
             $this->__relations['currentModel'] = $this->getRelatedArray($criteria);
         } else {
-            $rel   = $this->getMetaData()->relations[$name];
+            $rel = $this->getMetaData()->relations[$name];
             $class = $rel->className;
             if (!class_exists($class)) {
                 return [];
             }
 
             $relClassType = get_class($rel);
-            $tableModel   = $class::model();
-            $table        = $tableModel->tableName();
-            $tablePKCol   = $tableModel->metadata->tableSchema->primaryKey;
+            $tableModel = $class::model();
+            $table = $tableModel->tableName();
+            $tablePKCol = $tableModel->metadata->tableSchema->primaryKey;
 
             switch ($relClassType) {
                 case 'CHasOneRelation':
@@ -762,15 +819,16 @@ class ActiveRecord extends CActiveRecord {
                                 if (!is_null($this[$rel->foreignKey]) && $this[$rel->foreignKey] !== '') {
                                     switch ($this->dbConnection->driverName) {
                                         case "oci":
+                                        case "pgsql":
                                             $sql = "select * from \"{$table}\" "
-                                                    . " where \"{$tablePKCol}\" = :p";
+                                                . " where \"{$tablePKCol}\" = :p";
                                             break;
                                         default:
                                             $sql = "select * from `{$table}` "
-                                                    . " where `{$tablePKCol}` = :p";
+                                                . " where `{$tablePKCol}` = :p";
                                     }
                                     $this->__relations[$name] = ActiveRecord::queryRow($sql, [
-                                                ':p' => $this[$rel->foreignKey]
+                                        ':p' => $this[$rel->foreignKey]
                                     ]);
                                 } else {
                                     $this->__relations[$name] = [];
@@ -792,7 +850,7 @@ class ActiveRecord extends CActiveRecord {
                         ## limit relation result by 25
                         if (!isset($criteria['limit']) || !isset($criteria['offset'])) {
                             $criteria['offset'] = 0;
-                            $criteria['limit']  = 25;
+                            $criteria['limit'] = 25;
                         }
 
                         $this->__relationsObj[$name] = $this->getRelated($name, true, $criteria);
@@ -819,19 +877,20 @@ class ActiveRecord extends CActiveRecord {
                         if ($rel->joinType == 'LEFT OUTER JOIN') {
                             switch ($this->dbConnection->driverName) {
                                 case "oci":
+                                case "pgsql":
                                     $sql = "select * from \"{$table}\" "
-                                            . " where \"{$rel->foreignKey}\" = {$this->id} limit 10";
+                                        . " where \"{$rel->foreignKey}\" = {$this->id} limit 10";
                                     break;
                                 default:
                                     $sql = "select * from `{$table}` "
-                                            . "where `{$rel->foreignKey}` = {$this->id} limit 10";
+                                        . "where `{$rel->foreignKey}` = {$this->id} limit 10";
                             }
                             $this->__relations[$name] = ActiveRecord::queryAll($sql);
                         }
                     } else {
 
                         if (!isset($criteria['limit'])) {
-                            $criteria['limit']  = ActiveRecord::DEFAULT_PAGE_SIZE;
+                            $criteria['limit'] = ActiveRecord::DEFAULT_PAGE_SIZE;
                             $criteria['offset'] = 0;
                         }
 
@@ -852,19 +911,20 @@ class ActiveRecord extends CActiveRecord {
             if (isset($criteria['aggregate'])) {
                 $criteriaAggregate = $criteria['aggregate'];
                 unset($criteria['aggregate']);
-                $cdbCriteria       = new CDbCriteria($this->convertPagingCriteria($criteria));
-                $tableSchema       = $tableModel->metadata->tableSchema;
+                $cdbCriteria = new CDbCriteria($this->convertPagingCriteria($criteria));
+                $tableSchema = $tableModel->metadata->tableSchema;
                 $this->processAggregate($this->__relations[$name], $criteriaAggregate, $tableSchema, $cdbCriteria);
             }
         }
         return $this->__relations[$name];
     }
 
-    public static function convertPagingCriteria($criteria) {
+    public static function convertPagingCriteria($criteria)
+    {
         ## clean criteria array
         if (isset($criteria['page'])) {
             $criteria['offset'] = ($criteria['page'] - 1) * $criteria['pageSize'];
-            $criteria['limit']  = $criteria['pageSize'];
+            $criteria['limit'] = $criteria['pageSize'];
             unset($criteria['page'], $criteria['pageSize']);
         }
 
@@ -878,14 +938,16 @@ class ActiveRecord extends CActiveRecord {
         return $criteria;
     }
 
-    public function getActiveFinder($with) {
+    public function getActiveFinder($with)
+    {
         return new ActiveFinder($this, $with);
     }
 
-    public function getRelatedArray($criteria = [], $rel = null, $returnCdbCommand = false) {
-        $criteria          = ActiveRecord::convertPagingCriteria($criteria);
-        $tableSchema       = $this->tableSchema;
-        $builder           = $this->commandBuilder;
+    public function getRelatedArray($criteria = [], $rel = null, $returnCdbCommand = false)
+    {
+        $criteria = ActiveRecord::convertPagingCriteria($criteria);
+        $tableSchema = $this->tableSchema;
+        $builder = $this->commandBuilder;
         $criteriaAggregate = null;
 
         if (isset($criteria['aggregate'])) {
@@ -900,17 +962,17 @@ class ActiveRecord extends CActiveRecord {
         }
         ## generate sql;
         $command = $builder->createFindCommand($tableSchema, $cdbCriteria);
-        $sql     = $command->text;
-        
+        $sql = $command->text;
+
         if ($returnCdbCommand) {
             return $command;
         }
-        
+
         ## execute query
         $command = $this->dbConnection->createCommand($sql);
         $command->bindValues($cdbCriteria->params);
         $rawData = $command->queryAll(true);
-        
+
         ## aggregate
         if (isset($criteriaAggregate)) {
             $this->processAggregate($rawData, $criteriaAggregate, $tableSchema, $cdbCriteria);
@@ -919,7 +981,8 @@ class ActiveRecord extends CActiveRecord {
         return $rawData;
     }
 
-    private function processAggregate(&$rawData, $criteriaAggregate, $cdbCriteria) {
+    private function processAggregate(&$rawData, $criteriaAggregate, $cdbCriteria)
+    {
         $ag = new ArrayGroup($rawData, $criteriaAggregate['groups'], $criteriaAggregate['columns']);
         $ag->group();
 
@@ -927,12 +990,12 @@ class ActiveRecord extends CActiveRecord {
             if ($group['mode'] == 'sql' && isset($group['sql']) && trim($group['sql']) != '') {
                 $cdbCriteria->limit = -1;
                 $cdbCriteria->order = '';
-                $builder            = $this->commandBuilder;
-                $tableSchema        = $this->tableSchema;
-                $command            = $builder->createFindCommand($tableSchema, $cdbCriteria);
-                $sql                = $command->text;
-                $sql                = str_replace("{sql}", $sql, $group['sql']);
-                $sqlGroup           = $this->dbConnection->createCommand($sql)->queryAll(true, $cdbCriteria->params);
+                $builder = $this->commandBuilder;
+                $tableSchema = $this->tableSchema;
+                $command = $builder->createFindCommand($tableSchema, $cdbCriteria);
+                $sql = $command->text;
+                $sql = str_replace("{sql}", $sql, $group['sql']);
+                $sqlGroup = $this->dbConnection->createCommand($sql)->queryAll(true, $cdbCriteria->params);
 
                 foreach ($sqlGroup as $sg) {
                     $cursor = &$ag->grouped;
@@ -940,7 +1003,7 @@ class ActiveRecord extends CActiveRecord {
                     if ($lvl > 0) {
                         $skip = false;
                         for ($clvl = 1; $clvl <= $lvl; $clvl++) {
-                            $sgval  = $sg[$criteriaAggregate['groups'][$clvl]['col']];
+                            $sgval = $sg[$criteriaAggregate['groups'][$clvl]['col']];
                             $cursor = &$cursor['$items'];
 
                             if (isset($cursor[$sgval])) {
@@ -967,16 +1030,19 @@ class ActiveRecord extends CActiveRecord {
         $rawData = $ag->flatten();
     }
 
-    public static function queryRow($sql, $params = []) {
+    public static function queryRow($sql, $params = [])
+    {
         return Yii::app()->db->createCommand($sql)->queryRow(true, $params);
     }
 
-    public static function queryAll($sql, $params = []) {
+    public static function queryAll($sql, $params = [])
+    {
         return Yii::app()->db->createCommand($sql)->queryAll(true, $params);
     }
 
-    private function applyRelChange($name) {
-        $pk      = $this->tableSchema->primaryKey;
+    private function applyRelChange($name)
+    {
+        $pk = $this->tableSchema->primaryKey;
         $relHash = [];
 
         if (!is_array($this->__relations[$name])) {
@@ -1024,11 +1090,13 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function isTemp($name) {
+    public function isTemp($name)
+    {
         return isset($this->__tempVar);
     }
 
-    public function __get($name) {
+    public function __get($name)
+    {
         switch (true) {
             case Helper::isLastString($name, 'Count'):
                 $name = substr_replace($name, '', -5);
@@ -1040,8 +1108,8 @@ class ActiveRecord extends CActiveRecord {
                     } else if (Helper::is_assoc($rel)) {
                         return 1;
                     } else if ($name == 'currentModel') {
-                        $tableSchema  = $this->tableSchema;
-                        $builder      = $this->commandBuilder;
+                        $tableSchema = $this->tableSchema;
+                        $builder = $this->commandBuilder;
                         $countCommand = $builder->createCountCommand($tableSchema, new CDbCriteria);
                         return $countCommand->queryScalar();
                     } else {
@@ -1095,15 +1163,16 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
         $this->initRelation();
         switch (true) {
             case Helper::isLastString($name, 'PageSize'):
-                $name                    = substr_replace($name, '', -8);
+                $name = substr_replace($name, '', -8);
                 $this->__pageSize[$name] = $value;
                 break;
             case Helper::isLastString($name, 'Insert'):
-                $name                    = substr_replace($name, '', -6);
+                $name = substr_replace($name, '', -6);
                 if (isset($this->__relations[$name])) {
                     $this->__relInsert[$name] = $value;
                 }
@@ -1134,7 +1203,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function loadAllRelations() {
+    public function loadAllRelations()
+    {
         $relMetaData = $this->getMetaData()->relations;
         foreach ($relMetaData as $k => $r) {
             $this->__relations[$k] = [];
@@ -1150,7 +1220,8 @@ class ActiveRecord extends CActiveRecord {
      * @return CActiveRecord the newly created active record. The class of the object is the same as the model class.
      * Null is returned if the input data is false.
      */
-    public function populateRecord($attributes, $callAfterFind = true) {
+    public function populateRecord($attributes, $callAfterFind = true)
+    {
         $record = parent::populateRecord($attributes, $callAfterFind);
 
         if (is_subclass_of($record, 'ActiveRecord')) {
@@ -1164,7 +1235,8 @@ class ActiveRecord extends CActiveRecord {
         return $record;
     }
 
-    public function getRelChanges($name) {
+    public function getRelChanges($name)
+    {
         return [
             'insert' => count(@$this->__relInsert[$name]) > 0 ? @$this->__relInsert[$name] : [],
             'update' => count(@$this->__relUpdate[$name]) > 0 ? @$this->__relUpdate[$name] : [],
@@ -1172,16 +1244,18 @@ class ActiveRecord extends CActiveRecord {
         ];
     }
 
-    public function resetRelChanges($relation) {
+    public function resetRelChanges($relation)
+    {
         $this->__relInsert[$relation] = [];
         $this->__relUpdate[$relation] = [];
         $this->__relDelete[$relation] = [];
     }
 
-    public function resetRel($relation, $data = null) {
+    public function resetRel($relation, $data = null)
+    {
         $this->__relInsert[$relation] = [];
         $this->__relUpdate[$relation] = [];
-        $this->__relReset[]           = $relation;
+        $this->__relReset[] = $relation;
 
         if (is_null($data)) {
             if (isset($this->__relations[$relation])) {
@@ -1200,7 +1274,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function setAttributes($values, $safeOnly = false, $withRelation = true) {
+    public function setAttributes($values, $safeOnly = false, $withRelation = true)
+    {
         $cols = $this->tableSchema->columns;
         foreach ($values as $k => $v) {
             if (isset($cols[$k])) {
@@ -1220,7 +1295,7 @@ class ActiveRecord extends CActiveRecord {
             $this->initRelation();
             foreach ($this->__relations as $k => $r) {
                 if ($k != 'currentModel' && isset($values[$k])) {
-                    $rel                   = $this->getMetaData()->relations[$k];
+                    $rel = $this->getMetaData()->relations[$k];
                     $this->__relations[$k] = $values[$k];
 
                     if (is_string($values[$k]) || (is_array($values[$k]))) {
@@ -1255,20 +1330,20 @@ class ActiveRecord extends CActiveRecord {
                 }
 
                 if (isset($values[$k . 'Insert'])) {
-                    $value                 = $values[$k . 'Insert'];
-                    $value                 = is_string($value) ? json_decode($value, true) : $value;
+                    $value = $values[$k . 'Insert'];
+                    $value = is_string($value) ? json_decode($value, true) : $value;
                     $this->__relInsert[$k] = $value;
                 }
 
                 if (isset($values[$k . 'Update'])) {
-                    $value                 = $values[$k . 'Update'];
-                    $value                 = is_string($value) ? json_decode($value, true) : $value;
+                    $value = $values[$k . 'Update'];
+                    $value = is_string($value) ? json_decode($value, true) : $value;
                     $this->__relUpdate[$k] = $value;
                 }
 
                 if (isset($values[$k . 'Delete'])) {
-                    $value                 = $values[$k . 'Delete'];
-                    $value                 = is_string($value) ? json_decode($value, true) : $value;
+                    $value = $values[$k . 'Delete'];
+                    $value = is_string($value) ? json_decode($value, true) : $value;
                     $this->__relDelete[$k] = $value;
                 }
 
@@ -1284,9 +1359,10 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function getAttributeProperties() {
-        $props      = [];
-        $class      = new ReflectionClass($this);
+    public function getAttributeProperties()
+    {
+        $props = [];
+        $class = new ReflectionClass($this);
         $properties = Helper::getClassProperties($this);
 
         foreach ($this->__tempVar as $k => $p) {
@@ -1298,7 +1374,8 @@ class ActiveRecord extends CActiveRecord {
         return $props;
     }
 
-    public function getAttributesRelated($names = true) {
+    public function getAttributesRelated($names = true)
+    {
         $attributes = parent::getAttributes($names);
         $attributes = array_merge($attributes, $this->__relations);
         $attributes = array_merge($this->attributeProperties, $attributes);
@@ -1306,14 +1383,15 @@ class ActiveRecord extends CActiveRecord {
         return $attributes;
     }
 
-    public function getAttributesList($names = true, $refreshCache = false) {
-        $fields    = [];
-        $props     = [];
+    public function getAttributesList($names = true, $refreshCache = false)
+    {
+        $fields = [];
+        $props = [];
         $relations = [];
 
         if ($refreshCache) {
             $tableSchema = $this->dbConnection->schema->getTable($this->tableName(), true);
-            $metadata    = $this->getMetaData()->tableSchema = $tableSchema;
+            $metadata = $this->getMetaData()->tableSchema = $tableSchema;
         }
 
         foreach ($this->getMetaData()->tableSchema->columns as $name => $column) {
@@ -1348,7 +1426,8 @@ class ActiveRecord extends CActiveRecord {
         return $attributes;
     }
 
-    public function findAllByAttributes($attributes, $condition = '', $params = array()) {
+    public function findAllByAttributes($attributes, $condition = '', $params = array())
+    {
         $attr = [];
         foreach ($attributes as $k => $v) {
             $attr[ActiveRecord::formatCriteria($k)] = $v;
@@ -1357,8 +1436,9 @@ class ActiveRecord extends CActiveRecord {
         return parent::findAllByAttributes($attr, $condition, $params);
     }
 
-    public function beforeValidate() {
-        $validator         = new CInlineValidator;
+    public function beforeValidate()
+    {
+        $validator = new CInlineValidator;
         $validator->method = 'relationValidator';
 
         foreach ($this->__relations as $k => $new) {
@@ -1383,7 +1463,8 @@ class ActiveRecord extends CActiveRecord {
         return parent::beforeValidate();
     }
 
-    public function relationValidator($relName) {
+    public function relationValidator($relName)
+    {
         $pk = $this->tableSchema->primaryKey;
         if ($relName == 'currentModel') {
             $rel = new CHasManyRelation('currentModel', get_class($this), $pk);
@@ -1397,8 +1478,8 @@ class ActiveRecord extends CActiveRecord {
             }
 
             $modelClass = $rel->className;
-            $model      = new $modelClass;
-            $relPK      = $model->tableSchema->primaryKey;
+            $model = new $modelClass;
+            $relPK = $model->tableSchema->primaryKey;
 
             // Dokumentasi:
             // 
@@ -1427,17 +1508,17 @@ class ActiveRecord extends CActiveRecord {
                     foreach ($this->__relations[$relName] as $k => $attr) {
                         $model = new $modelClass;
 
-                        $model->attributes         = $attr;
+                        $model->attributes = $attr;
                         $model->{$rel->foreignKey} = $this->isNewRecord ? '0' : $this->{$pk};
 
                         if (!$model->validate()) {
                             if (isset($attr['$rowState'])) {
                                 $errors['list'][] = [
-                                    'index'  => $idx[$attr['$rowState']],
-                                    'mode'   => $attr['$rowState'],
+                                    'index' => $idx[$attr['$rowState']],
+                                    'mode' => $attr['$rowState'],
                                     'errors' => $model->errors
                                 ];
-                                $idx[$attr['$rowState']] ++;
+                                $idx[$attr['$rowState']]++;
 
                                 if ($attr['$rowState'] == 'edit') {
                                     $relHash['_' . $attr[$relPK]] = $attr;
@@ -1453,12 +1534,13 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function save($runValidation = true, $attributes = null) {
-        
+    public function save($runValidation = true, $attributes = null)
+    {
+
         if (!$runValidation || $this->validate($attributes)) {
             try {
                 return $this->getIsNewRecord() ? $this->insert($attributes) : $this->update($attributes);
-            } catch (CDbException $e) {  
+            } catch (CDbException $e) {
                 if (@$e->errorInfo[1] == 1452) {
                     preg_match("/FOREIGN\sKEY\s\(\`(.*)\`\)\sREFERENCES/", $e->errorInfo[2], $match);
                     $attribute = explode("`", $match[1]);
@@ -1495,14 +1577,21 @@ class ActiveRecord extends CActiveRecord {
      * @return boolean whether the attributes are valid and the record is inserted successfully.
      * @throws CDbException if the record is not new
      */
-    public function insert($attributes = null) {
+    public function insert($attributes = null)
+    {
         if (!$this->getIsNewRecord())
             throw new CDbException(Yii::t('yii', 'The active record cannot be inserted to database because it is not new.'));
         if ($this->beforeSave()) {
             Yii::trace(get_class($this) . '.insert()', 'system.db.ar.CActiveRecord');
             $builder = $this->getCommandBuilder();
-            $table   = $this->getTableSchema();
-            $command = $builder->createInsertCommand($table, $this->getAttributes($attributes));
+            $table = $this->getTableSchema();
+
+            $attrs = $this->getAttributes($attributes);
+            if (isset($attrs[$table->primaryKey]) && $attrs[$table->primaryKey] === '') {
+                unset($attrs[$table->primaryKey]);
+            }
+            
+            $command = $builder->createInsertCommand($table, $attrs);
             if ($command->execute()) {
                 $primaryKey = $table->primaryKey;
                 if ($table->sequenceName !== null) {
@@ -1527,15 +1616,18 @@ class ActiveRecord extends CActiveRecord {
         return false;
     }
 
-    public function saveModelArray() {
+    public function saveModelArray()
+    {
         $this->afterSave();
     }
 
-    public function afterSave() {
+    public function afterSave()
+    {
         return $this->doAfterSave();
     }
 
-    public function doAfterSave($withRelation = true) {
+    public function doAfterSave($withRelation = true)
+    {
         $pk = $this->tableSchema->primaryKey;
 
         if ($this->isNewRecord) {
@@ -1550,8 +1642,8 @@ class ActiveRecord extends CActiveRecord {
                 type = 'create' and
                 model_id is null")->execute([
                             'model_class' => ActiveRecord::baseClass($this),
-                            'model_id'    => $this->{$pk},
-                            'user_id'     => Yii::app()->user->id
+                            'model_id' => $this->{$pk},
+                            'user_id' => Yii::app()->user->id
                         ]);
                     }
                 }
@@ -1564,7 +1656,7 @@ class ActiveRecord extends CActiveRecord {
         ## handling untuk file upload
         if (method_exists($this, 'getFields')) {
             $currentClass = get_class($this);
-            $attrs        = $this->handleFileUpload($currentClass, $this);
+            $attrs = $this->handleFileUpload($currentClass, $this);
 
             if (count($attrs) > 0) {
                 if ($this->isNewRecord) {
@@ -1577,7 +1669,7 @@ class ActiveRecord extends CActiveRecord {
             }
 
             ## handle listview
-            $fb       = FormBuilder::load($currentClass);
+            $fb = FormBuilder::load($currentClass);
             $listView = $fb->findAllField(['type' => 'ListView']);
             foreach ($listView as $k => $lv) {
 
@@ -1606,11 +1698,12 @@ class ActiveRecord extends CActiveRecord {
         return true;
     }
 
-    public static function baseClass($object) {
-        $class   = new ReflectionClass($object);
+    public static function baseClass($object)
+    {
+        $class = new ReflectionClass($object);
         $lineage = array();
-        $prev    = "";
-        $c       = $class->getParentClass()->name;
+        $prev = "";
+        $c = $class->getParentClass()->name;
 
         if ($c == "ActiveRecord" || $c == "CActiveRecord")
             return get_class($object);
@@ -1627,10 +1720,11 @@ class ActiveRecord extends CActiveRecord {
         return false;
     }
 
-    public function deleteResetedRelations() {
+    public function deleteResetedRelations()
+    {
         ## delete all relation data that not included in relUpdate..
         $rels = $this->getMetaData()->relations;
-        $pk   = $this->tableSchema->primaryKey;
+        $pk = $this->tableSchema->primaryKey;
         foreach ($this->__relReset as $r) {
             if (!isset($rels[$r])) {
                 continue;
@@ -1641,7 +1735,7 @@ class ActiveRecord extends CActiveRecord {
                 case 'CHasManyRelation':
                     ## without through
                     if (is_string($rel->foreignKey)) {
-                        $class     = $rel->className;
+                        $class = $rel->className;
                         $tableName = $class::model()->tableName();
 
                         $ids = [];
@@ -1649,23 +1743,24 @@ class ActiveRecord extends CActiveRecord {
                             $ids[] = $u[$pk];
                         }
                         if (!empty($ids)) {
-                            $ids   = implode(",", $ids);
+                            $ids = implode(",", $ids);
                             $where = "where {$pk} not in ($ids) AND {$rel->foreignKey} = " . $this->{$pk};
                         }
                     } ## todo: with through
                     else {
-                        
+
                     }
                     break;
             }
         }
     }
 
-    private function handleFileUpload($className, &$obj) {
-        $fb           = FormBuilder::load($className);
+    private function handleFileUpload($className, &$obj)
+    {
+        $fb = FormBuilder::load($className);
         $uploadFields = $fb->findAllField(['type' => 'UploadFile']);
-        $attrs        = [];
-        $model        = $this;
+        $attrs = [];
+        $model = $this;
 
         foreach ($uploadFields as $k => $f) {
             if (@$f['name'] == '' || @$f['uploadPath'] == '') {
@@ -1674,17 +1769,17 @@ class ActiveRecord extends CActiveRecord {
 
             ## create directory
             ## Jika disini gagal, berarti ada yang salah dengan format uploadPath di FormBuilder-nya
-            $evalDir    = '';
+            $evalDir = '';
             eval('$evalDir = "' . $f['uploadPath'] . '";');
-            $evalDir    = str_replace(["\n", "\r"], "", $evalDir);
-            $repopath   = realpath(Yii::getPathOfAlias("repo"));
+            $evalDir = str_replace(["\n", "\r"], "", $evalDir);
+            $repopath = realpath(Yii::getPathOfAlias("repo"));
             $evalDirArr = explode("/", $evalDir);
             foreach ($evalDirArr as $i => $j) {
                 $evalDirArr[$i] = preg_replace('/[\/\?\:\*\"\<\>\|\\\]*/', "", $j);
             }
             $evalDir = implode("/", $evalDirArr);
-            $dir     = $repopath . "/" . $evalDir . "/";
-            $dir     = str_replace(["\n", "\r"], "", $dir);
+            $dir = $repopath . "/" . $evalDir . "/";
+            $dir = str_replace(["\n", "\r"], "", $dir);
             if (!is_dir($dir)) {
                 @mkdir($dir, 0755, true);
                 @chown($dir, 0755);
@@ -1697,11 +1792,11 @@ class ActiveRecord extends CActiveRecord {
             } else if (is_array($obj) && isset($obj[$f['name']])) {
                 $old = $obj[$f['name']];
             }
-                
+
             if (is_file($old)) {
-                $ext      = pathinfo($old, PATHINFO_EXTENSION);
+                $ext = pathinfo($old, PATHINFO_EXTENSION);
                 $filename = pathinfo($old, PATHINFO_FILENAME);
-                
+
                 if (@$f['filePattern']) {
                     ## get newname
                     ## Jika disini gagal, berarti ada yang salah dengan format filePattern di FormBuilder-nya
@@ -1734,7 +1829,7 @@ class ActiveRecord extends CActiveRecord {
                     }
                     if (is_array($obj)) {
                         if (isset($obj[$f['name']])) {
-                            $obj[$f['name']]   = $new;
+                            $obj[$f['name']] = $new;
                             $attrs[$f['name']] = $new;
                         }
                     }
@@ -1744,13 +1839,14 @@ class ActiveRecord extends CActiveRecord {
         return $attrs;
     }
 
-    public function saveSubRelation($subRel, $data, $model) {
+    public function saveSubRelation($subRel, $data, $model)
+    {
         $rels = [];
         $subs = [];
 
         $metaRel = $model->metaData->relations;
-        $class   = get_class($model);
-        $pk      = $model->tableSchema->primaryKey;
+        $class = get_class($model);
+        $pk = $model->tableSchema->primaryKey;
 
         foreach ($subRel as $k => $v) {
             if (is_numeric($k))
@@ -1764,7 +1860,7 @@ class ActiveRecord extends CActiveRecord {
                         else
                             $rel = $vk;
 
-                        $smr        = $metaRel[$rel];
+                        $smr = $metaRel[$rel];
                         $subs[$rel] = $smr;
                     }
                 }
@@ -1796,8 +1892,8 @@ class ActiveRecord extends CActiveRecord {
                     $update[$k] = $d;
                 }
             }
-            
-            
+
+
             if (!empty($insert)) {
                 ActiveRecord::batchInsert($class, $insert);
 
@@ -1815,8 +1911,6 @@ class ActiveRecord extends CActiveRecord {
             }
 
 
-
-
             if (!empty($update)) {
                 ActiveRecord::batchUpdate($class, $update);
             }
@@ -1824,7 +1918,7 @@ class ActiveRecord extends CActiveRecord {
             foreach ($data[$r] as $d) {
                 foreach ($subs as $s => $v) {
                     $relClass = $v->className;
-                    $relData  = @$d[$s];
+                    $relData = @$d[$s];
                     if (isset($d['$' . $s])) {
                         if (isset($d[$d['$' . $s]])) {
                             $relData = $d[$d['$' . $s]];
@@ -1860,7 +1954,7 @@ class ActiveRecord extends CActiveRecord {
                     ## foreign key checks
                     if (is_array($relData)) {
                         $relForeignKey = $v->foreignKey;
-                        $relType       = get_class($v);
+                        $relType = get_class($v);
                         if (is_string($relForeignKey)) { ## without through
                             if ($relType != 'ManyManyRelation') {
                                 foreach ($relData as $n => $m) {
@@ -1891,7 +1985,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function saveRelation() {
+    public function saveRelation()
+    {
         $pk = $this->tableSchema->primaryKey;
 
         foreach ($this->__relations as $k => $new) {
@@ -1905,11 +2000,11 @@ class ActiveRecord extends CActiveRecord {
             if (!class_exists($relClass))
                 continue;
 
-            $relType       = get_class($rel);
+            $relType = get_class($rel);
             $relForeignKey = $rel->foreignKey;
             $relTableModel = $relClass::model();
-            $relTable      = $relTableModel->tableName();
-            $relPK         = $relTableModel->metadata->tableSchema->primaryKey;
+            $relTable = $relTableModel->tableName();
+            $relPK = $relTableModel->metadata->tableSchema->primaryKey;
 
             switch ($relType) {
                 case 'CHasOneRelation':
@@ -1935,27 +2030,27 @@ class ActiveRecord extends CActiveRecord {
                                     unset($attr[$k]);
                                 }
                             }
-                            if(is_array($new) && is_array($attr)){
-                                
+                            if (is_array($new) && is_array($attr)) {
+
                                 foreach ($new as $k => $v) {
                                     if (is_array($v)) {
                                         unset($new[$k]);
                                     }
                                 }
-                                
+
                                 foreach ($attr as $k => $v) {
                                     if (is_array($v)) {
                                         unset($attr[$k]);
                                     }
                                 }
-                                
+
                                 if (array_diff($new, $attr) || array_diff($attr, $new)) {
                                     $model->attributes = $new;
                                     if ($relType == 'CHasOneRelation') {
                                         $model->{$relForeignKey} = $this->{$pk};
                                     }
                                     $model->save();
-                                }    
+                                }
                             }
                         } else {
                             $this->loadRelation($rel->name);
@@ -1968,12 +2063,12 @@ class ActiveRecord extends CActiveRecord {
                     $relMM = [];
                     if ($relType == 'ManyManyRelation') {
                         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-                        $stmts  = $parser->parse('<?php ' . $relForeignKey . ';');
+                        $stmts = $parser->parse('<?php ' . $relForeignKey . ';');
                         if (count($stmts) > 0) {
                             $relMM = [
                                 'tableName' => $stmts[0]->name->parts[0],
-                                'from'      => $stmts[0]->args[0]->value->name->parts[0],
-                                'to'        => $stmts[0]->args[1]->value->name->parts[0]
+                                'from' => $stmts[0]->args[0]->value->name->parts[0],
+                                'to' => $stmts[0]->args[1]->value->name->parts[0]
                             ];
                         }
                     }
@@ -2016,7 +2111,7 @@ class ActiveRecord extends CActiveRecord {
                                 foreach ($this->__relInsert[$k] as $item) {
                                     $manyRel[] = [
                                         $relMM['from'] => $this->{$pk},
-                                        $relMM['to']   => $item[$relPK]
+                                        $relMM['to'] => $item[$relPK]
                                     ];
                                 }
 
@@ -2076,8 +2171,8 @@ class ActiveRecord extends CActiveRecord {
                                     $manyRel = [];
                                     foreach ($this->__relUpdate[$k] as $item) {
                                         $item[$relMM['from']] = $this->{$pk};
-                                        $item[$relMM['to']]   = $item[$relPK];
-                                        $manyRel[]            = $item;
+                                        $item[$relMM['to']] = $item[$relPK];
+                                        $manyRel[] = $item;
                                     }
                                     ActiveRecord::batchUpdate($relMM['tableName'], $manyRel);
                                 }
@@ -2096,9 +2191,9 @@ class ActiveRecord extends CActiveRecord {
                                 if (!empty($relMM)) {
                                     //first remove entry in transaction table first
                                     ActiveRecord::batchDelete($relMM['tableName'], $this->__relDelete[$k], [
-                                        'table'          => $relMM['tableName'],
-                                        'pk'             => $relPK,
-                                        'condition'      => "{$relMM['from']} = {$this->{$pk}} AND {$relMM['to']} IN (:ids)",
+                                        'table' => $relMM['tableName'],
+                                        'pk' => $relPK,
+                                        'condition' => "{$relMM['from']} = {$this->{$pk}} AND {$relMM['to']} IN (:ids)",
                                         'integrityError' => false
                                     ]);
 
@@ -2116,14 +2211,16 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function getAttributesWithoutRelation($names = true) {
+    public function getAttributesWithoutRelation($names = true)
+    {
         $attributes = parent::getAttributes($names);
         $attributes = array_merge($this->attributeProperties, $attributes);
 
         return $attributes;
     }
 
-    public function getAttributes($names = true) {
+    public function getAttributes($names = true)
+    {
         $attributes = parent::getAttributes($names);
         $attributes = array_merge($this->attributeProperties, $attributes);
 
@@ -2134,7 +2231,8 @@ class ActiveRecord extends CActiveRecord {
         return $attributes;
     }
 
-    public function getModelFieldList() {
+    public function getModelFieldList()
+    {
         $fields = array_keys(parent::getAttributes());
 
         foreach ($fields as $k => $f) {
@@ -2145,15 +2243,16 @@ class ActiveRecord extends CActiveRecord {
             }
 
             $array[] = [
-                'name'  => $f,
-                'type'  => $type,
+                'name' => $f,
+                'type' => $type,
                 'label' => $this->getAttributeLabel($f)
             ];
         }
         return $array;
     }
 
-    public function delete() {
+    public function delete()
+    {
         try {
             if (!!$this->_softDelete) {
                 $this->{$this->_softDelete['column']} = $this->_softDelete['value'];
@@ -2168,7 +2267,8 @@ class ActiveRecord extends CActiveRecord {
         }
     }
 
-    public function getDefaultFields($options = []) {
+    public function getDefaultFields($options = [])
+    {
         Yii::import("application.components.codegen.templates.ActiveRecordTemplate");
         return ActiveRecordTemplate::generateFields($this, $options);
     }

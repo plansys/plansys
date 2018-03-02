@@ -522,7 +522,7 @@ class ActiveJoinElement {
 			else	// no matching related objects
 				return null;
 		}
-		else // is_array, composite key
+		else if (is_array($this->_pkAlias)) // is_array, composite key
 		{
 			$pk=array();
 			foreach($this->_pkAlias as $name=>$alias)
@@ -533,6 +533,9 @@ class ActiveJoinElement {
 					return null;
 			}
 			$pk=serialize($pk);
+		} else {
+			throw new CDbException('Cannot find primary key in table ' . $this->_table->name . '
+			If problem persist, please re-generate all model related to this table.');
 		}
 
 		// retrieve or populate the record according to the primary key value

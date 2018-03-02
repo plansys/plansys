@@ -686,7 +686,8 @@ class RelationField extends FormField {
                                         $hasil = str_replace($f, '{LOWER(COALESCE(TO_CHAR(' . $x[$fieldArray[1][$k]] . '), \'\'))}', $hasil);
                                         break;
                                     default:
-                                        $hasil = str_replace($f, '{LOWER(IFNULL(' . $x[$fieldArray[1][$k]] . ', ""))}', $hasil);
+                                        // $hasil = str_replace($f, '{LOWER(IFNULL(' . $x[$fieldArray[1][$k]] . ', ""))}', $hasil);
+                                        $hasil = str_replace($f, '{LOWER(COALESCE(' . $x[$fieldArray[1][$k]] . ', \'\'))}', $hasil);
                                 }
                             } else {
                                 switch ($driver) {
@@ -694,7 +695,8 @@ class RelationField extends FormField {
                                         $hasil = str_replace($f, '{LOWER(COALESCE(TO_CHAR(' . $fieldArray[1][$k] . '), \'\'))}', $hasil);
                                         break;
                                     default:
-                                        $hasil = str_replace($f, '{LOWER(IFNULL(' . $fieldArray[1][$k] . ', ""))}', $hasil);
+                                        // $hasil = str_replace($f, '{LOWER(IFNULL(' . $fieldArray[1][$k] . ', ""))}', $hasil);
+                                        $hasil = str_replace($f, '{LOWER(COALESCE(' . $fieldArray[1][$k] . ', \'\'))}', $hasil);
                                 }
                             }
                         }

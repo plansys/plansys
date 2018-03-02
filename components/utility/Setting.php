@@ -647,6 +647,22 @@ class Setting {
                     ],
                 ];
                 break;
+            case "sqlsrv":
+                if (@$db['port'] == null) {
+                    $connectionString = $db['driver'] . ':Server=' . $db['host'] . ';Database=' . $db['dbname'];
+                } else {
+                    $connectionString = $db['driver'] . ':Server=' . $db['host'] . ':' . $db['port'] . ';Database=' . $db['dbname'];
+                }
+                $connection = [
+                    'connectionString' => $connectionString,
+                    // 'emulatePrepare'   => true,
+                    'username'         => $db['username'],
+                    'password'         => $db['password'],
+                    // 'attributes'       => [
+                    //     PDO::ATTR_STRINGIFY_FETCHES => true,
+                    // ],
+                ];
+                break;
             default:
                 if (@$db['port'] == null) {
                     $connectionString = $db['driver'] . ':host=' . $db['host'] . ';dbname=' . $db['dbname'];
@@ -680,7 +696,7 @@ class Setting {
             'mysql' => 'MySQL',
             'oci'   => 'Oracle',
             'pgsql' => 'PostgreSQL',
-                //  'sqlsrv' => 'SQL Server',
+            'sqlsrv' => 'SQL Server',
                 //  'sqlite' => 'SQLite',
         ];
     }

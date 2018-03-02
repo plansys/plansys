@@ -1049,7 +1049,7 @@ app.directive('gridView', function($timeout, $http) {
                 // initialize gridView
                 $scope.initGrid = function() {
                     $scope.gridOptions.pageInfo = {
-                        pageSizes: [10, 25, 50, 100, 250, 500, 1000],
+                        pageSizes: [10, 25, 50, 100, 250, 500, 1000, 2000],
                         pageSize: $scope.defaultPageSize,
                         totalServerItems: $scope.datasource.totalItems,
                         currentPage: 1,
