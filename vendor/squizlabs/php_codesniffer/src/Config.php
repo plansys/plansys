@@ -23,7 +23,7 @@ class Config
      *
      * @var string
      */
-    const VERSION = '3.2.2';
+    const VERSION = '3.2.3';
 
     /**
      * Package stability; either stable, beta or alpha.
@@ -59,7 +59,7 @@ class Config
      * bool     showSources     Show sniff source codes in report output.
      * bool     showProgress    Show basic progress information while running.
      * bool     quiet           Quiet mode; disables progress and verbose output.
-     * bool     annotations     Process @codingStandard annotations.
+     * bool     annotations     Process phpcs: annotations.
      * int      tabWidth        How many spaces each tab is worth.
      * string   encoding        The encoding of the files being checked.
      * string[] sniffs          The sniffs that should be used for checking.
@@ -1223,7 +1223,6 @@ class Config
                     $this->processUnknownArgument('--'.$arg, $pos);
                 }
             }//end if
-
             break;
         }//end switch
 
@@ -1379,7 +1378,7 @@ class Config
         echo ' --no-colors           Do not use colors in output (this is the default)'.PHP_EOL;
         echo ' --cache               Cache results between runs'.PHP_EOL;
         echo ' --no-cache            Do not cache results between runs (this is the default)'.PHP_EOL;
-        echo ' --ignore-annotations  Ignore all @codingStandard annotations in code comments'.PHP_EOL;
+        echo ' --ignore-annotations  Ignore all phpcs: annotations in code comments'.PHP_EOL;
         echo PHP_EOL;
         echo ' <cacheFile>    Use a specific file for caching (uses a temporary file by default)'.PHP_EOL;
         echo ' <basepath>     A path to strip from the front of file paths inside reports'.PHP_EOL;
@@ -1439,7 +1438,7 @@ class Config
         echo PHP_EOL;
         echo ' --help                Print this help message'.PHP_EOL;
         echo ' --version             Print version information'.PHP_EOL;
-        echo ' --ignore-annotations  Ignore all @codingStandard annotations in code comments'.PHP_EOL;
+        echo ' --ignore-annotations  Ignore all phpcs: annotations in code comments'.PHP_EOL;
         echo PHP_EOL;
         echo ' <basepath>    A path to strip from the front of file paths inside reports'.PHP_EOL;
         echo ' <bootstrap>   A comma separated list of files to run before processing begins'.PHP_EOL;

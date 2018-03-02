@@ -7,6 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Thrift' => array($vendorDir . '/plansys/thrift/lib'),
+    'Svg\\' => array($vendorDir . '/phenx/php-svg-lib/src'),
+    'Sabberworm\\CSS' => array($vendorDir . '/sabberworm/php-css-parser/lib'),
     'JasperPHP' => array($vendorDir . '/cossou/jasperphp/src'),
     'InlineStyle' => array($vendorDir . '/inlinestyle/inlinestyle'),
 );

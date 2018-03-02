@@ -57,7 +57,6 @@ class DataSource extends FormField {
                 $ds->params = $field['params'];
             }
         }
-
         $ds->sql = $sql;
         return $ds->query($params);
     }
@@ -69,13 +68,11 @@ class DataSource extends FormField {
     public function query($params = [], $debug = false) {
         $paramDefs = $params;
         $params    = array_merge($params, $this->queryParams);
-
+        
         if (trim($this->sql) == "")
             return [];
-
         $db       = Yii::app()->db;
         $template = DataSource::generateTemplate($this->sql, $params, $this, $paramDefs);
-        
         ## execute SQL
         $this->command = $db->createCommand($template['sql']);
         $data          = $this->command->queryAll(true, $template['params']);
@@ -174,15 +171,27 @@ class DataSource extends FormField {
         $returnParams = [];
         
         ## find all params
-        preg_match_all("/\:[\w\d_]+/", $sql, $params);
+        preg_match_all("/(\:[\w\d_]+\[allownull])|(\:[\w\d_]+)/", $sql, $params);
         $originalSql = $sql;
         $model       = $field->model;
+        
         foreach ($params[0] as $idx => $p) {
-            if (isset($postedParams[$p])) {
+            $allowNull = false;
+            if(strpos($p, '[allownull]') !== false )
+            {
+                $p = str_replace('[allownull]','',$p);
+                $allowNull = true;
+            }
+            
+            
+            if (array_key_exists($p, $postedParams)) {
                 if (is_numeric($postedParams[$p])) {
                     $returnParams[$p] = $postedParams[$p];
-                } else {
-                    if (is_string($postedParams[$p])) {
+                }
+                else 
+                {
+                    
+                    if (is_string($postedParams[$p]) || (is_null($postedParams[$p]) && $allowNull)) {
                         $isJs = strpos($postedParams[$p], 'js:') !== false || (isset($paramDefs[$p]) && strpos($paramDefs[$p], 'js:') !== false);
 
                         if (!$isJs && isset($field->params[$p]) && strpos($field->params[$p], 'js:') === 0) {
@@ -190,6 +199,7 @@ class DataSource extends FormField {
                         }
 
                         if ($isJs) {
+                            
                             switch (get_class($field)) {
                                 case "DataSource":
                                     $returnParams[$p] = @$field->queryParams[$p];
@@ -200,10 +210,11 @@ class DataSource extends FormField {
                             }
                         } else {
                             $postParam = $postedParams[$p];
+                            
                             if (stripos($postParam, 'php:') === 0) {
                                 $postParam = substr($postParam, 4);
                             }
-                            if (is_string($postParam) && $postParam != "") {
+                            if ((is_string($postParam) && $postParam != "") || ($allowNull)) {
                                 $returnParams[$p] = $field->evaluate($postParam, true, [
                                     'model' => $model,
                                     'params' => @$field->builder->renderOptions['params']
@@ -220,10 +231,7 @@ class DataSource extends FormField {
                 }
             }
         }
-
-        ## find all blocks
         preg_match_all( Helper::nestedParensRegex('{', '}'), $sql, $blocks );
-        
         foreach ($blocks[1] as $block) {
             if (strtolower($block) == "and" || strtolower($block) == "or") {
                 continue;
@@ -237,7 +245,7 @@ class DataSource extends FormField {
             $sql = str_replace("{{$originalBlock}}", "{{$block}}", $sql);
             
             $bracket = DataSource::processSQLBracket($block, $postedParams, $field);
-            
+
             $renderBracket = false;
             if (isset($bracket['render'])) {
                 $renderBracket = $bracket['render'];
@@ -256,12 +264,16 @@ class DataSource extends FormField {
             ## check if there is another params
             preg_match_all("/\:[\w\d_]+/", $bracket['sql'], $attachedParams);
             
+            $allowNull = false;
+            if(isset($bracket['params']['allownull']))
+                $allowNull = true;
+            
+                
             if (count($attachedParams[0]) > 0) {
                 $inParams = 0;
                 foreach ($attachedParams[0] as $ap) {
-                    if (isset($returnParams[$ap]) && $returnParams[$ap] != "") {
+                    if (isset($returnParams[$ap]) && ($returnParams[$ap] != "") || $allowNull) {
                         $inParams++;
-                        
                         ## if current params is an ARRAY then convert to multiple params
                         if (is_array($returnParams[$ap]) && !empty($returnParams[$ap])) {
                             $newParamString = [];
@@ -273,14 +285,18 @@ class DataSource extends FormField {
                             unset($returnParams[$ap]);
                             $bracket['sql'] = Helper::strReplaceFirst($ap, implode(",", $newParamString), $bracket['sql']);
                         }
+                        
+                        if($allowNull && is_null($returnParams[$ap]))
+                        {
+                            $bracket['sql'] = str_replace(array("=",$p),array(" IS ", " NULL "), $bracket['sql']);
+                        }
                     }
                 }
                 
                 if ($inParams >= count($attachedParams)) {
                     $renderBracket = true;
                 }
-            }
-                
+            }   
             if ($renderBracket) {
                 if (strtolower($block) == '[where]') {
                     $isNotFirst = strpos($sql, "{{$block}}") > 0;
@@ -289,13 +305,13 @@ class DataSource extends FormField {
                     if (!$isSelect && $isNotFirst && stripos($bracket['sql'], 'where') == 0)
                         $bracket['sql'] = " AND " . substr($bracket['sql'], 5);
                 }
-                
                 $sql = str_replace("{{$block}}", $bracket['sql'], $sql);
+                
             } else {
                 $sql = str_replace("{{$block}}", "", $sql);
             }
+            
         }
-        
         ## concat 'WHERE' sql with operators
         if ($sql != "") {
             $sql = DataSource::concatSql($sql, "AND");
@@ -304,7 +320,6 @@ class DataSource extends FormField {
             
         ## remove uneeded return params
         preg_match_all("/\:[\w\d_]+/", $sql, $cp);
-        
         foreach ($returnParams as $k => $p) {
             if (!in_array($k, $cp[0]) && ($k[0] != ":" && !in_array(':' . $k, $cp[0]))) {
                 unset($returnParams[$k]);
@@ -314,7 +329,6 @@ class DataSource extends FormField {
                 unset($returnParams[$k]);
             }
         }
-
         return [
             'sql'    => trim($sql),
             'params' => $returnParams

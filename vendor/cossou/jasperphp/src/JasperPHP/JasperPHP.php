@@ -138,7 +138,7 @@ class JasperPHP
 
         $this->redirect_output  = $redirect_output;
         $this->background       = $background;
-        $this->the_command      = $command;
+        $this->the_command      = escapeshellcmd($command);
 
         return $this;
     }
@@ -177,7 +177,6 @@ class JasperPHP
 
         $output     = array();
         $return_var = 0;
-        
 
         exec($this->the_command, $output, $return_var);
 

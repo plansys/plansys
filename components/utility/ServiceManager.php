@@ -236,6 +236,10 @@ class ServiceManager extends CComponent {
                     $isnew = true; 
                } 
 
+               if (!is_executable($file)) {
+                    chmod(substr($file, 0, -6), 755);
+               }
+               
                $output = shell_exec($file);
                
                # wait until we can connect to thrift server

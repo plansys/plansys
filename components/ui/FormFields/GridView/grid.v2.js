@@ -1045,9 +1045,24 @@ app.directive('gridView', function($timeout, $http) {
                         $scope.update();
                     }
                 }
-
+                
+                $scope.assembleColumns = function(cols){
+                    $header = $el.find("table.tdata > thead ");
+                    //$el.find("table.tdata > thead > tr").remove();
+                    
+                    for(var i in cols){
+                        
+                    }
+                    
+                    //var newEle = angular.element("<tr><th cidx=\"2\" ridx=\"1\" style=\"width:200px;min-width:200px;max-width:200px;overflow-x: hidden;\"><div class=\"row-header\" ng-click=\"sort('dihitung_per_engine')\">Dihitung Per Engine<!----><!----></div></th></tr>");
+                    
+                   // angular.element($header).append(newEle);
+                    
+                }
+                
                 // initialize gridView
                 $scope.initGrid = function() {
+                    
                     $scope.gridOptions.pageInfo = {
                         pageSizes: [10, 25, 50, 100, 250, 500, 1000, 2000],
                         pageSize: $scope.defaultPageSize,
@@ -1055,27 +1070,27 @@ app.directive('gridView', function($timeout, $http) {
                         currentPage: 1,
                         typingPage: 1
                     };
-
+                    
                     $scope.$watch('gridOptions.pageInfo', function(paging, oldpaging) {
                         if (paging.typingPage != oldpaging.typingPage) return;
                         if (paging != oldpaging) {
                             var maxPage = Math.ceil($scope.datasource.totalItems / $scope.gridOptions.pageInfo.pageSize);
-
+                        
                             if (isNaN($scope.gridOptions.pageInfo.currentPage) ||
                                 $scope.gridOptions.pageInfo.currentPage == '' ||
                                 $scope.gridOptions.pageInfo.currentPage <= 0) {
                                 $scope.gridOptions.pageInfo.currentPage = 1;
                             }
-
+                
                             if ($scope.gridOptions.pageInfo.currentPage > maxPage) {
                                 $scope.gridOptions.pageInfo.currentPage = Math.max(maxPage, 1);
                             }
-
+                
                             if (typeof $scope.datasource != "undefined" && typeof paging != "undefined") {
                                 if ($scope.pagingTimeout != null) {
                                     clearTimeout($scope.pagingTimeout);
                                 }
-
+                
                                 $scope.pagingTimeout = setTimeout(function() {
                                     $scope.updatePaging(paging, true, oldpaging);
                                 }, 100);
@@ -1115,7 +1130,7 @@ app.directive('gridView', function($timeout, $http) {
                                 window.resize();
                             }
                         };
-
+                
                         $scope.loadPageSetting();
                     });
                 };
@@ -1129,10 +1144,19 @@ app.directive('gridView', function($timeout, $http) {
 
                 $scope.gridRenderTimeout = null;
                 $scope.onGridRender = function(flag) {
+
+                    
+                    
                     if (flag == 'templateload') {
                         $scope.loading = true;
                         $header = $el.find("table.tdata > thead");
-                        $scope.columns = JSON.parse($el.find('script[name=columnsnew]').text());
+                        
+                        if(typeof $scope.initColumns == 'function'){
+                            $scope.columns = $scope.initColumns();    
+                        }else{
+                            $scope.columns = JSON.parse($el.find('script[name=columnsnew]').text());    
+                        }                        
+                        
                         $scope.freezedColsReady = false;
                     }
 

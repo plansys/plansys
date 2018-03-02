@@ -228,8 +228,8 @@ abstract class Tokenizer
                 || $this->tokens[$i]['code'] === T_DOC_COMMENT_TAG
                 || ($inTests === true && $this->tokens[$i]['code'] === T_INLINE_HTML))
             ) {
-                $commentText      = ltrim($this->tokens[$i]['content'], ' /*');
-                $commentText      = rtrim($commentText, " */\r\n");
+                $commentText      = ltrim($this->tokens[$i]['content'], " \t/*");
+                $commentText      = rtrim($commentText, " */\t\r\n");
                 $commentTextLower = strtolower($commentText);
                 if (strpos($commentText, '@codingStandards') !== false) {
                     // If this comment is the only thing on the line, it tells us
@@ -255,7 +255,7 @@ abstract class Tokenizer
                     ) {
                         $ignoring = ['all' => true];
                         if ($ownLine === true) {
-                            $this->ignoredLines[$this->tokens[$i]['line']] = ['all' => true];
+                            $this->ignoredLines[$this->tokens[$i]['line']] = $ignoring;
                         }
                     } else if ($ignoring !== null
                         && strpos($commentText, '@codingStandardsIgnoreEnd') !== false
@@ -272,7 +272,7 @@ abstract class Tokenizer
                     ) {
                         $ignoring = ['all' => true];
                         if ($ownLine === true) {
-                            $this->ignoredLines[$this->tokens[$i]['line']]       = ['all' => true];
+                            $this->ignoredLines[$this->tokens[$i]['line']]       = $ignoring;
                             $this->ignoredLines[($this->tokens[$i]['line'] + 1)] = $ignoring;
                         } else {
                             $this->ignoredLines[$this->tokens[$i]['line']] = $ignoring;
@@ -280,7 +280,16 @@ abstract class Tokenizer
 
                         $ignoring = null;
                     }//end if
-                } else if (substr($commentTextLower, 0, 6) === 'phpcs:') {
+                } else if (substr($commentTextLower, 0, 6) === 'phpcs:'
+                    || substr($commentTextLower, 0, 7) === '@phpcs:'
+                ) {
+                    // If the @phpcs: syntax is being used, strip the @ to make
+                    // comparisions easier.
+                    if ($commentText[0] === '@') {
+                        $commentText      = substr($commentText, 1);
+                        $commentTextLower = strtolower($commentText);
+                    }
+
                     // If there is a comment on the end, strip it off.
                     $commentStart = strpos($commentTextLower, ' --');
                     if ($commentStart !== false) {
@@ -293,8 +302,12 @@ abstract class Tokenizer
                     // then we are just ignoring this one single line.
                     $ownLine = false;
                     if ($i > 0) {
-                        for ($prev = ($i - 1); $prev >= 0; $prev--) {
-                            if ($this->tokens[$prev]['code'] === T_WHITESPACE) {
+                        for ($prev = ($i - 1); $prev > 0; $prev--) {
+                            if ($this->tokens[$prev]['code'] === T_WHITESPACE
+                                || $this->tokens[$prev]['code'] === T_OPEN_TAG
+                                || ($this->tokens[$prev]['code'] === T_INLINE_HTML
+                                && trim($this->tokens[$prev]['content']) === '')
+                            ) {
                                 continue;
                             }
 
@@ -307,8 +320,11 @@ abstract class Tokenizer
                     }
 
                     if (substr($commentTextLower, 0, 9) === 'phpcs:set') {
-                        // Ignore standards for lines that change sniff settings.
-                        $this->ignoredLines[$this->tokens[$i]['line']] = true;
+                        // Ignore standards for complete lines that change sniff settings.
+                        if ($ownLine === true) {
+                            $this->ignoredLines[$this->tokens[$i]['line']] = true;
+                        }
+
                         $this->tokens[$i]['code'] = T_PHPCS_SET;
                         $this->tokens[$i]['type'] = 'T_PHPCS_SET';
                     } else if (substr($commentTextLower, 0, 16) === 'phpcs:ignorefile') {
@@ -342,41 +358,42 @@ abstract class Tokenizer
                         $this->tokens[$i]['code']       = T_PHPCS_DISABLE;
                         $this->tokens[$i]['type']       = 'T_PHPCS_DISABLE';
                         $this->tokens[$i]['sniffCodes'] = $disabledSniffs;
-                    } else if ($ignoring !== null
-                        && substr($commentTextLower, 0, 12) === 'phpcs:enable'
-                    ) {
-                        $enabledSniffs = [];
+                    } else if (substr($commentTextLower, 0, 12) === 'phpcs:enable') {
+                        if ($ignoring !== null) {
+                            $enabledSniffs = [];
 
-                        $additionalText = substr($commentText, 13);
-                        if ($additionalText === false) {
-                            $ignoring = null;
-                        } else {
-                            $parts = explode(',', substr($commentText, 13));
-                            foreach ($parts as $sniffCode) {
-                                $sniffCode = trim($sniffCode);
-                                $enabledSniffs[$sniffCode] = true;
-                                if (isset($ignoring[$sniffCode]) === true) {
-                                    unset($ignoring[$sniffCode]);
+                            $additionalText = substr($commentText, 13);
+                            if ($additionalText === false) {
+                                $ignoring = null;
+                            } else {
+                                $parts = explode(',', substr($commentText, 13));
+                                foreach ($parts as $sniffCode) {
+                                    $sniffCode = trim($sniffCode);
+                                    $enabledSniffs[$sniffCode] = true;
+                                    if (isset($ignoring[$sniffCode]) === true) {
+                                        unset($ignoring[$sniffCode]);
+                                    }
+                                }
+
+                                if (empty($ignoring) === true) {
+                                    $ignoring = null;
                                 }
                             }
 
-                            if (empty($ignoring) === true) {
-                                $ignoring = null;
+                            if ($ownLine === true) {
+                                // Completely ignore the comment line.
+                                $this->ignoredLines[$this->tokens[$i]['line']] = ['all' => true];
+                            } else {
+                                // The comment is on the same line as the code it is ignoring,
+                                // so respect the new ignore rules.
+                                $this->ignoredLines[$this->tokens[$i]['line']] = $ignoring;
                             }
-                        }
 
-                        if ($ownLine === true) {
-                            // Completely ignore the comment line.
-                            $this->ignoredLines[$this->tokens[$i]['line']] = ['all' => true];
-                        } else {
-                            // The comment is on the same line as the code it is ignoring,
-                            // so respect the new ignore rules.
-                            $this->ignoredLines[$this->tokens[$i]['line']] = $ignoring;
-                        }
+                            $this->tokens[$i]['sniffCodes'] = $enabledSniffs;
+                        }//end if
 
-                        $this->tokens[$i]['code']       = T_PHPCS_ENABLE;
-                        $this->tokens[$i]['type']       = 'T_PHPCS_ENABLE';
-                        $this->tokens[$i]['sniffCodes'] = $enabledSniffs;
+                        $this->tokens[$i]['code'] = T_PHPCS_ENABLE;
+                        $this->tokens[$i]['type'] = 'T_PHPCS_ENABLE';
                     } else if (substr($commentTextLower, 0, 12) === 'phpcs:ignore') {
                         $ignoreRules = [];
 
