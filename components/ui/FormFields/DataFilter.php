@@ -329,8 +329,13 @@ class DataFilter extends FormField {
                 }
                 break;
             case "list":
+                $operator = "=";
+                if ($driver === 'pgsql') {
+                    $operator = "ILIKE";
+                }
+                
                 if (isset($filter['value']) && $filter['value'] != '') {
-                    $sql = "{$column} ILIKE :{$paramName}_{$pcolumn}";
+                    $sql = "{$column} {$operator} :{$paramName}_{$pcolumn}";
                     $param = @$filter['value'];
                 }
                 break;
