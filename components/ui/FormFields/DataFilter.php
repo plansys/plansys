@@ -375,7 +375,12 @@ class DataFilter extends FormField {
                         $psql = [];
                         foreach ($filter['value'] as $k => $p) {
                             $param[":{$paramName}_{$pcolumn}_{$k}"] = "%{$p}%";
-                            $psql[] = "{$column} ILIKE :{$paramName}_{$pcolumn}_{$k}";
+                            if ($driver == "pgsql") {
+                                $psql[] = "{$column} ILIKE :{$paramName}_{$pcolumn}_{$k}";
+                            }else{
+                                $psql[] = "{$column} LIKE :{$paramName}_{$pcolumn}_{$k}";
+                                
+                            }
                         }
                         $sql = "(" . implode(" AND ", $psql) . ")";
                     }
