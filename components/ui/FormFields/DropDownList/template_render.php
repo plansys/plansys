@@ -16,9 +16,11 @@
         <data name="searchable" class="hide" ><?= $this->searchable ?></data>
         <data name="show_other" class="hide" ><?= $this->showOther ?></data>
         <data name="other_label" class="hide" ><?= $this->otherLabel ?></data>
-        <data name="model_class" class="hide"><?= @get_class($model) ?></data>
+        <data name="model_class" class="hide"><?= Helper::getAlias($model) ?></data>
         <data name="default_type" class="hide"><?= $this->defaultType ?></data>
         <data name="default_value" class="hide"><?= $this->defaultValue ?></data>
+        <data name="has_expr" class="hide"><?= trim($this->listExpr) === "" ? "N" : "Y" ?></data>
+        <data name="has_expr_params" class="hide"><?= strpos($this->listExpr,'$params') === false ? "N" : "Y" ?></data>
         <data name="form_list" class="hide"><?= json_encode($this->list) ?></data>
         <data name="ng_disabled" class="hide"><?= $this->isDisabled(); ?></data>
         <!-- /data -->

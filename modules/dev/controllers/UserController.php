@@ -94,6 +94,7 @@ class UserController extends Controller {
             }
 
             $model->resetRel('userRoles', $model->userRoles);
+            $model->last_login = null;
 
             if ($model->save()) {
                 $model->subscribed = "on";

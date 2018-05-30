@@ -297,6 +297,25 @@ class DropDownList extends FormField {
         ];
     }
 
+    public function actionProcessExpr() {
+        $postdata = file_get_contents("php://input");
+        $post = CJSON::decode($postdata);
+        
+        if (count($post) == 0) { die(); }
+        
+        $fb = FormBuilder::load($post['m']);
+        $ffilter = ['name' => $post['n']];
+        $ff = $fb->findField($ffilter);
+        if (trim($ff['listExpr']) == '') {
+            echo "{}";
+        } else {
+            $res = $this->evaluate($ff['listExpr'], true,[
+                'params' => @$post['prm']
+            ]);
+            echo json_encode($res);
+        }
+    }
+
     /**
      * checked
      * Fungsi ini untuk mengecek value dari field

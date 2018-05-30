@@ -629,7 +629,6 @@ class Setting {
         if (is_null($db)) {
             $db = Setting::get('db');
         }
-
         switch ($db['driver']) {
             case "oci":
                 if (@$db['port'] == null) {

@@ -289,7 +289,6 @@ class CDbConnection extends CApplicationComponent
 		$this->connectionString=$dsn;
 		$this->username=$username;
 		$this->password=$password;
-		
 	}
 
 	/**
