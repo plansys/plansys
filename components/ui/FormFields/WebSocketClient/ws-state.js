@@ -10,8 +10,9 @@ app.directive('webSocketState', function($timeout, $http) {
                return function($scope, $el, attrs, ctrl) {
                     $scope.name = $el.find("data[name=name]:eq(0)").html().trim();
                     $scope.port = $el.find("data[name=port]:eq(0)").html().trim();
+                    $scope.scheme = window.location.href.indexOf("https") === 0 ? "wss://" : "ws://";
                     $scope.config = $.extend({
-                         url: "ws://" + window.location.hostname + ":" + $scope.port,
+                         url: $scope.scheme + window.location.hostname + ":" + $scope.port,
                          tid: null,
                          uid: null,
                          sid: null,

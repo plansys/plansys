@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"context"
 	"strings"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
@@ -20,6 +21,7 @@ import (
 	"github.com/tidwall/buntdb"
 )
 
+var ctx context.Context
 type program struct{}
 
 func (p *program) Run() {
@@ -37,7 +39,7 @@ func (p *program) Quit() {
 		transport, _ := thrift.NewTSocket(addr)
 		var protocol thrift.TProtocol = thrift.NewTCompactProtocol(transport)
 		protocol = thrift.NewTMultiplexedProtocol(protocol, "ServiceManager")
-		service := svc.NewServiceManagerClientProtocol(transport, protocol, protocol)
+		// service := svc.NewServiceManagerClientProtocol(transport, protocol, protocol)
 		err := transport.Open()
 		defer transport.Close()
 		if err != nil {
@@ -79,6 +81,7 @@ func main() {
 	} else {
 		isrun = true
 	}
+	ctx = context.Background()
 
 	rootpath := getPath("")
 	log.Println("Root Path:", rootpath)
@@ -169,7 +172,8 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 
 	restartChan := make(chan bool)
 	cwd := filepath.FromSlash(strings.Join(rootdirs, "/"))
-	svcProcessor := svc.NewServiceManagerProcessor(NewServiceManagerHandler(svcDB, cwd, svport, restartChan))
+	svcHandler := NewServiceManagerHandler(svcDB, cwd, svport, restartChan)
+	svcProcessor := svc.NewServiceManagerProcessor(svcHandler)
 	processor.RegisterProcessor("ServiceManager", svcProcessor)
 
 	// register state processor (and start ws server)
@@ -298,6 +302,6 @@ func ThriftAlreadyRun(port string, dir string) bool {
 	}
 
 	defer transport.Close()
-	tdir, _ := service.Cwd()
+	tdir, _ := service.Cwd(ctx)
 	return (tdir == dir)
 }

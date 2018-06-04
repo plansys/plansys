@@ -1253,7 +1253,7 @@ func (p *ServiceManagerProcessor) Process(ctx context.Context, iprot, oprot thri
   oprot.WriteMessageBegin(name, thrift.EXCEPTION, seqId)
   x28.Write(oprot)
   oprot.WriteMessageEnd()
-  oprot.Flush()
+  oprot.Flush(ctx)
   return false, x28
 
 }
@@ -1270,7 +1270,7 @@ func (p *serviceManagerProcessorAdd) Process(ctx context.Context, seqId int32, i
     oprot.WriteMessageBegin("add", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1282,7 +1282,7 @@ func (p *serviceManagerProcessorAdd) Process(ctx context.Context, seqId int32, i
     oprot.WriteMessageBegin("add", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("add", thrift.REPLY, seqId); err2 != nil {
@@ -1294,7 +1294,7 @@ func (p *serviceManagerProcessorAdd) Process(ctx context.Context, seqId int32, i
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1315,7 +1315,7 @@ func (p *serviceManagerProcessorRemove) Process(ctx context.Context, seqId int32
     oprot.WriteMessageBegin("remove", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1327,7 +1327,7 @@ func (p *serviceManagerProcessorRemove) Process(ctx context.Context, seqId int32
     oprot.WriteMessageBegin("remove", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("remove", thrift.REPLY, seqId); err2 != nil {
@@ -1339,7 +1339,7 @@ func (p *serviceManagerProcessorRemove) Process(ctx context.Context, seqId int32
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1360,7 +1360,7 @@ func (p *serviceManagerProcessorStart) Process(ctx context.Context, seqId int32,
     oprot.WriteMessageBegin("start", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1373,7 +1373,7 @@ var retval string
     oprot.WriteMessageBegin("start", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   } else {
     result.Success = &retval
@@ -1387,7 +1387,7 @@ var retval string
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1408,7 +1408,7 @@ func (p *serviceManagerProcessorStop) Process(ctx context.Context, seqId int32, 
     oprot.WriteMessageBegin("stop", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1420,7 +1420,7 @@ func (p *serviceManagerProcessorStop) Process(ctx context.Context, seqId int32, 
     oprot.WriteMessageBegin("stop", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("stop", thrift.REPLY, seqId); err2 != nil {
@@ -1432,7 +1432,7 @@ func (p *serviceManagerProcessorStop) Process(ctx context.Context, seqId int32, 
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1453,7 +1453,7 @@ func (p *serviceManagerProcessorStopInstance) Process(ctx context.Context, seqId
     oprot.WriteMessageBegin("stopInstance", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1465,7 +1465,7 @@ func (p *serviceManagerProcessorStopInstance) Process(ctx context.Context, seqId
     oprot.WriteMessageBegin("stopInstance", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("stopInstance", thrift.REPLY, seqId); err2 != nil {
@@ -1477,7 +1477,7 @@ func (p *serviceManagerProcessorStopInstance) Process(ctx context.Context, seqId
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1498,7 +1498,7 @@ func (p *serviceManagerProcessorGetInstance) Process(ctx context.Context, seqId 
     oprot.WriteMessageBegin("getInstance", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1511,7 +1511,7 @@ var retval *Instance
     oprot.WriteMessageBegin("getInstance", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   } else {
     result.Success = retval
@@ -1525,7 +1525,7 @@ var retval *Instance
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1546,7 +1546,7 @@ func (p *serviceManagerProcessorGetService) Process(ctx context.Context, seqId i
     oprot.WriteMessageBegin("getService", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1559,7 +1559,7 @@ var retval *Service
     oprot.WriteMessageBegin("getService", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   } else {
     result.Success = retval
@@ -1573,7 +1573,7 @@ var retval *Service
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1594,7 +1594,7 @@ func (p *serviceManagerProcessorSetView) Process(ctx context.Context, seqId int3
     oprot.WriteMessageBegin("setView", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1606,7 +1606,7 @@ func (p *serviceManagerProcessorSetView) Process(ctx context.Context, seqId int3
     oprot.WriteMessageBegin("setView", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("setView", thrift.REPLY, seqId); err2 != nil {
@@ -1618,7 +1618,7 @@ func (p *serviceManagerProcessorSetView) Process(ctx context.Context, seqId int3
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1639,7 +1639,7 @@ func (p *serviceManagerProcessorGetAllServices) Process(ctx context.Context, seq
     oprot.WriteMessageBegin("getAllServices", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1652,7 +1652,7 @@ var retval map[string]*Service
     oprot.WriteMessageBegin("getAllServices", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   } else {
     result.Success = retval
@@ -1666,7 +1666,7 @@ var retval map[string]*Service
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1687,7 +1687,7 @@ func (p *serviceManagerProcessorCwd) Process(ctx context.Context, seqId int32, i
     oprot.WriteMessageBegin("cwd", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1700,7 +1700,7 @@ var retval string
     oprot.WriteMessageBegin("cwd", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   } else {
     result.Success = &retval
@@ -1714,7 +1714,7 @@ var retval string
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {
@@ -1735,7 +1735,7 @@ func (p *serviceManagerProcessorQuit) Process(ctx context.Context, seqId int32, 
     oprot.WriteMessageBegin("quit", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return false, err
   }
 
@@ -1747,7 +1747,7 @@ func (p *serviceManagerProcessorQuit) Process(ctx context.Context, seqId int32, 
     oprot.WriteMessageBegin("quit", thrift.EXCEPTION, seqId)
     x.Write(oprot)
     oprot.WriteMessageEnd()
-    oprot.Flush()
+    oprot.Flush(ctx)
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("quit", thrift.REPLY, seqId); err2 != nil {
@@ -1759,7 +1759,7 @@ func (p *serviceManagerProcessorQuit) Process(ctx context.Context, seqId int32, 
   if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
     err = err2
   }
-  if err2 = oprot.Flush(); err == nil && err2 != nil {
+  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
     err = err2
   }
   if err != nil {

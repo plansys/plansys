@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"context"
 	"strconv"
 	"strings"
 
@@ -265,7 +266,7 @@ func (p *StateManagerHandler) Yiic(returnOutput bool, stdin []byte, params ...st
 	}
 }
 
-func (p *StateManagerHandler) Disconnect(client *state.Client, reason string) (err error) {
+func (p *StateManagerHandler) Disconnect(ctx context.Context, client *state.Client, reason string) (err error) {
 	url := p.WsUrl + "disconnect"
 	url = url + "&tid=" + *client.Tid
 	url = url + "&uid=" + *client.Uid
@@ -277,7 +278,7 @@ func (p *StateManagerHandler) Disconnect(client *state.Client, reason string) (e
 	return err
 }
 
-func (p *StateManagerHandler) SetTag(client *state.Client, tag string) (err error) {
+func (p *StateManagerHandler) SetTag(ctx context.Context, client *state.Client, tag string) (err error) {
 	if p.Clients == nil {
 		return nil
 	}
@@ -299,7 +300,7 @@ func (p *StateManagerHandler) SetTag(client *state.Client, tag string) (err erro
 	return err
 }
 
-func (p *StateManagerHandler) GetClients(to *state.Client) (clients []*state.Client, err error) {
+func (p *StateManagerHandler) GetClients(ctx context.Context, to *state.Client) (clients []*state.Client, err error) {
 
 	for conn, val := range p.Clients {
 
@@ -344,7 +345,7 @@ func (p *StateManagerHandler) GetClients(to *state.Client) (clients []*state.Cli
 	return clients, err
 }
 
-func (p *StateManagerHandler) Send(to *state.Client, message string) (err error) {
+func (p *StateManagerHandler) Send(ctx context.Context, to *state.Client, message string) (err error) {
 
 	for conn, val := range p.Clients {
 		if val.Tid == nil {
@@ -388,7 +389,7 @@ func (p *StateManagerHandler) Send(to *state.Client, message string) (err error)
 	return err
 }
 
-func (p *StateManagerHandler) Receive(from *state.Client) (val string, err error) {
+func (p *StateManagerHandler) Receive(ctx context.Context, from *state.Client) (val string, err error) {
 	return "", err
 }
 
@@ -430,7 +431,7 @@ func (p *StateManagerHandler) use(dbname string) (db *buntdb.DB, success bool) {
 	}
 }
 
-func (p *StateManagerHandler) StateSet(db string, key string, val string) (err error) {
+func (p *StateManagerHandler) StateSet(ctx context.Context, db string, key string, val string) (err error) {
 	if pdb, ok := p.use(db); ok {
 		pdb.Update(func(tx *buntdb.Tx) error {
 			_, _, err := tx.Set(key, val, nil)
@@ -440,7 +441,7 @@ func (p *StateManagerHandler) StateSet(db string, key string, val string) (err e
 	return err
 }
 
-func (p *StateManagerHandler) StateDel(db string, key string) (err error) {
+func (p *StateManagerHandler) StateDel(ctx context.Context, db string, key string) (err error) {
 	if pdb, ok := p.use(db); ok {
 		pdb.Update(func(tx *buntdb.Tx) error {
 			_, err := tx.Delete(key)
@@ -450,7 +451,7 @@ func (p *StateManagerHandler) StateDel(db string, key string) (err error) {
 	return err
 }
 
-func (p *StateManagerHandler) StateGet(db string, key string) (val string, err error) {
+func (p *StateManagerHandler) StateGet(ctx context.Context, db string, key string) (val string, err error) {
 	if pdb, ok := p.use(db); ok {
 		var value string
 		pdb.View(func(tx *buntdb.Tx) error {
@@ -463,7 +464,7 @@ func (p *StateManagerHandler) StateGet(db string, key string) (val string, err e
 	return "", err
 }
 
-func (p *StateManagerHandler) StateCount(db string) (count int32, err error) {
+func (p *StateManagerHandler) StateCount(ctx context.Context, db string) (count int32, err error) {
 	if pdb, ok := p.use(db); ok {
 		var value int
 		pdb.View(func(tx *buntdb.Tx) error {
@@ -476,7 +477,7 @@ func (p *StateManagerHandler) StateCount(db string) (count int32, err error) {
 	return 0, err
 }
 
-func (p *StateManagerHandler) StateCreateIndex(db, name, pattern, indextype string) (err error) {
+func (p *StateManagerHandler) StateCreateIndex(ctx context.Context, db, name, pattern, indextype string) (err error) {
 	if pdb, ok := p.use(db); ok {
 		indexsplit := strings.Split(indextype, ":")
 
@@ -498,7 +499,7 @@ func (p *StateManagerHandler) StateCreateIndex(db, name, pattern, indextype stri
 	return err
 }
 
-func (p *StateManagerHandler) StateGetByKey(db string, key string) (val []map[string]string, err error) {
+func (p *StateManagerHandler) StateGetByKey(ctx context.Context, db string, key string) (val []map[string]string, err error) {
 	if pdb, ok := p.use(db); ok {
 		var result []map[string]string
 
@@ -524,7 +525,7 @@ func (p *StateManagerHandler) StateGetByKey(db string, key string) (val []map[st
 	}
 }
 
-func (p *StateManagerHandler) StateGetByIndex(db, name string, params map[string]string) (val []map[string]string, err error) {
+func (p *StateManagerHandler) StateGetByIndex(ctx context.Context, db, name string, params map[string]string) (val []map[string]string, err error) {
 	if pdb, ok := p.use(db); ok {
 		var result []map[string]string
 
