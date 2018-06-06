@@ -66,13 +66,25 @@ class Setting {
         date_default_timezone_set("Asia/Jakarta");
         $bp = Setting::setupBasePath($configfile);
         $ap = Setting::$rootPath . DIRECTORY_SEPARATOR . "app";
+        $defaultConfigDir = $ap . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR;
         
         if (!is_dir(Setting::getRuntimePath())) {
             mkdir(Setting::getRuntimePath(), 0755, true);
             chmod(Setting::getRuntimePath(), 0755);
         }
+    
+        if (is_file($defaultConfigDir . "configdir.php")) {
+            Setting::$path = include($defaultConfigDir . "configdir.php");
+            
+            if (!is_dir(Setting::$path)) {
+                mkdir(Setting::$path, 0777);
+            }
+            
+            Setting::$path = rtrim(Setting::$path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . "settings.json";
+        } else {
+            Setting::$path = $defaultConfigDir . "settings.json";
+        }
 
-        Setting::$path = $ap . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "settings.json";
         if (!is_file(Setting::$path)) {
             $configdir = dirname(Setting::$path);
             if (!is_dir($configdir)) {
@@ -85,7 +97,7 @@ class Setting {
                 chmod($configdir, 0755);
             }
 
-            $oldConfig = $bp . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "settings.json";
+            $oldConfig = dirname(Setting::$path) . DIRECTORY_SEPARATOR . "settings.json";
             
             if (is_file($oldConfig)) {
                 $res = @rename($oldConfig, Setting::$path);

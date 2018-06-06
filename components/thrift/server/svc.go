@@ -55,7 +55,7 @@ func lcfirst(str string) string {
 	return ""
 }
 
-func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartChan chan bool) *ServiceManagerHandler {
+func NewServiceManagerHandler(db *buntdb.DB, dir string, configDir []string, port string, restartChan chan bool) *ServiceManagerHandler {
 	service := make(map[string]*svc.Service)
 	runningInstances := make(map[string]*RunningInstance)
 
@@ -120,7 +120,7 @@ func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartCha
 		DB:               db,
 		RunningInstances: runningInstances,
 		Config: ServiceConfig{
-			PhpPath:            getPhpPath(),
+			PhpPath:            getPhpPath(configDir),
 			KeepClosedInstance: 10,
 		},
 		Dir:         dir,

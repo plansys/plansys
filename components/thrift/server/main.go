@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"context"
 	"strings"
+    "regexp"
+    "bufio"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"github.com/VividCortex/godaemon"
@@ -94,11 +96,38 @@ func main() {
 	}
 }
 
+func getConfigDir(rootdirs []string) string {
+	path := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "configdir.php"), "/"))
+	
+    file, err := os.Open(path)
+    defer file.Close()
+    if err != nil {
+    	return filepath.FromSlash(strings.Join(append(rootdirs, "app", "config"), "/"))
+    }
+
+	var re = regexp.MustCompile(`return\s[\"|\'](.*)[\"|\']`)
+					
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+    	text := re.FindStringSubmatch(scanner.Text())
+    	if (len(text) > 1) {
+    		return text[len(text) -1]
+    	}
+    }
+
+    if err := scanner.Err(); err != nil {
+        log.Fatal(err)
+    }
+    
+    return filepath.FromSlash(strings.Join(append(rootdirs, "app", "config"), "/"))
+}
+
 func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift.TProtocolFactory) error {
 	svport, wsport, rootdirs := InitPort()
 	if svport == "" || wsport == "" {
 		return nil
 	}
+	configDir := strings.Split(filepath.ToSlash(getConfigDir(rootdirs)), "/")
 
 	// log all error to file
 	if len(os.Args) > 1 {
@@ -109,7 +138,8 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 
 	svaddr := "127.0.0.1:" + svport
 	wsaddr := "0.0.0.0:" + wsport
-	svcPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "service.buntdb"), "/"))
+	
+	svcPath := filepath.FromSlash(strings.Join(append(configDir, "service.buntdb"), "/"))
 	svcPathTemp := filepath.FromSlash(strings.Join(append(rootdirs, "assets", "service.buntdb"), "/"))
 
 	_, err := os.OpenFile(svcPath, os.O_RDWR|os.O_CREATE, 0666)
@@ -172,12 +202,12 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 
 	restartChan := make(chan bool)
 	cwd := filepath.FromSlash(strings.Join(rootdirs, "/"))
-	svcHandler := NewServiceManagerHandler(svcDB, cwd, svport, restartChan)
+	svcHandler := NewServiceManagerHandler(svcDB, cwd, configDir, svport, restartChan)
 	svcProcessor := svc.NewServiceManagerProcessor(svcHandler)
 	processor.RegisterProcessor("ServiceManager", svcProcessor)
 
 	// register state processor (and start ws server)
-	sm := NewStateManagerHandler(wsaddr, rootdirs)
+	sm := NewStateManagerHandler(wsaddr, configDir)
 	defer func() { // close all state db connection when exiting
 		for _, v := range sm.States {
 			v.DB.Close()

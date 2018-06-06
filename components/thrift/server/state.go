@@ -40,17 +40,9 @@ type StateDB struct {
 	Indexes map[string]string
 }
 
-func getPhpPath() string {
-	ex, err := godaemon.GetExecutablePath()
-	if err != nil {
-		log.Println(err)
-		return ""
-	}
-
+func getPhpPath(rootdirs []string) string {
 	php := "php"
-	sep := fmt.Sprintf("%c", os.PathSeparator)
-	dirs := strings.Split(filepath.Dir(ex), sep)
-	config := strings.Join(dirs[:len(dirs)-4], sep) + sep + "app" + sep + "config" + sep + "settings.json"
+	config := filepath.FromSlash(strings.Join(append(rootdirs,  "settings.json"), "/"))
 
 	if _, err := os.Stat(config); err == nil {
 		if json, err := ioutil.ReadFile(config); err == nil {
@@ -189,8 +181,8 @@ func NewStateManagerHandler(addr string, rootdirs []string) *StateManagerHandler
 			}
 		})
 		
-		certPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "cert.pem"), "/"))
-		keyPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "certkey.pem"), "/"))
+		certPath := filepath.FromSlash(strings.Join(append(rootdirs,  "cert.pem"), "/"))
+		keyPath := filepath.FromSlash(strings.Join(append(rootdirs, "certkey.pem"), "/"))
 		log.Println("Running Websocket Server at:", addr)
 		
 		go http.ListenAndServe(addr,nil)
@@ -246,7 +238,7 @@ func (p *StateManagerHandler) Yiic(returnOutput bool, stdin []byte, params ...st
 	dirs := strings.Split(filepath.Dir(ex), sep)
 	base := strings.Join(dirs[:len(dirs)-3], sep)
 	yiic := base + sep + "yiic.php"
-	php := getPhpPath()
+	php := getPhpPath(p.Rootdirs)
 
 	params = append([]string{yiic}, params...)
 	cmd := exec.Command(php, params...)
