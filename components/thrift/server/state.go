@@ -13,7 +13,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
-
+	
 	"github.com/VividCortex/godaemon"
 	"github.com/gorilla/websocket"
 	"github.com/plansys/psthrift/state"
@@ -188,9 +188,14 @@ func NewStateManagerHandler(addr string, rootdirs []string) *StateManagerHandler
 				}
 			}
 		})
-
+		
+		certPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "cert.pem"), "/"))
+		keyPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "certkey.pem"), "/"))
 		log.Println("Running Websocket Server at:", addr)
-		err := http.ListenAndServe(addr, nil)
+		
+		go http.ListenAndServe(addr,nil)
+		err := http.ListenAndServeTLS(addr, certPath, keyPath, nil)
+
 		if err != nil {
 			// listen to another port
 			log.Println("Failed to listen ", addr)
@@ -208,8 +213,9 @@ func NewStateManagerHandler(addr string, rootdirs []string) *StateManagerHandler
 					ferr := ioutil.WriteFile(portfile, []byte(ports[0]+":"+wsport), 0644)
 					if ferr == nil {
 						log.Println("Running Websocket Server at:", addr)
-
-						werr := http.ListenAndServe(addr, nil)
+						
+						go http.ListenAndServe(addr,nil)
+						werr := http.ListenAndServeTLS(addr, certPath, keyPath, nil)
 						if werr != nil {
 							log.Println("Failed to listen ", addr)
 							log.Println(werr)

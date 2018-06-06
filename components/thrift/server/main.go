@@ -87,7 +87,7 @@ func main() {
 	log.Println("Root Path:", rootpath)
 
 	if isrun {
-		s := single.NewWithTempDir(GetMD5Hash(rootpath), getPath("assets"))
+		s := single.NewWithTempDir("thrift_is_running_" + GetMD5Hash(rootpath), getPath("assets"))
 		s.Lock()
 		defer s.Unlock()
 		p.Run()
