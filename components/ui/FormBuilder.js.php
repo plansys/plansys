@@ -20,7 +20,7 @@ ob_start();
     <?php ob_start(); ?>
     var plansys = <?php echo json_encode(Setting::get('app')); ?>;
     
-    app.controller("<?php echo $modelClass ?>Controller", function ($scope, $parse, $timeout, $http, $localStorage, $filter) {
+    app.controller("<?php echo $modelClass ?>Controller", function ($scope, $parse, $timeout, $http, $localStorage, $filter, $compile) {
         $scope.form = <?php echo json_encode($this->form); ?>;
         $scope.model = <?php echo @json_encode($data['data'], JSON_PARTIAL_OUTPUT_ON_ERROR); ?>;
         $scope.errors = <?php echo @json_encode($data['errors']); ?>;
@@ -221,7 +221,7 @@ ob_start();
                 });
             }
 
-            if (!$scope.submitted) {
+            if (!$scope.submitted && !$scope.formSubmitting) {
                 if (!!$scope.model && $scope.user != null) {
                     // track create or update in audit trail
                     $scope.formSubmitting = true;
