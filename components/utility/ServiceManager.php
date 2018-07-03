@@ -19,7 +19,6 @@ class ServiceManager extends CComponent {
               throw new Exception('Thrift Daemon is not running!'); 
           }
           $port = explode(":", $portfile);
-          
           self::$sm = new ServiceManager;
           try {
                self::$sm->socket = new TSocket('127.0.0.1', $port[0]);
@@ -28,8 +27,10 @@ class ServiceManager extends CComponent {
                self::$sm->client = new \svc\ServiceManagerClient(self::$sm->protocol);
                
                self::$sm->transport->open();
-          } catch (TException $tx) {
-               print 'TException: '.$tx->getMessage()."\n";
+          } catch (Exception $tx) {
+               if (strpos($tx->getMessage(), "not connect") !== false) {
+                    self::startDaemon(true);
+               }
           }
      }
      
@@ -237,7 +238,7 @@ class ServiceManager extends CComponent {
                } 
 
                if (!is_executable($file)) {
-                    chmod(substr($file, 0, -6), 755);
+                    chmod(substr($file, 0, strlen($params) + 1), 755);
                }
                
                $output = shell_exec($file);

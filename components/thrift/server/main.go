@@ -9,7 +9,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"context"
 	"strings"
+    "regexp"
+    "bufio"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"github.com/VividCortex/godaemon"
@@ -20,6 +23,7 @@ import (
 	"github.com/tidwall/buntdb"
 )
 
+var ctx context.Context
 type program struct{}
 
 func (p *program) Run() {
@@ -37,7 +41,7 @@ func (p *program) Quit() {
 		transport, _ := thrift.NewTSocket(addr)
 		var protocol thrift.TProtocol = thrift.NewTCompactProtocol(transport)
 		protocol = thrift.NewTMultiplexedProtocol(protocol, "ServiceManager")
-		service := svc.NewServiceManagerClientProtocol(transport, protocol, protocol)
+		// service := svc.NewServiceManagerClientProtocol(transport, protocol, protocol)
 		err := transport.Open()
 		defer transport.Close()
 		if err != nil {
@@ -79,16 +83,43 @@ func main() {
 	} else {
 		isrun = true
 	}
+	ctx = context.Background()
 
 	rootpath := getPath("")
 	log.Println("Root Path:", rootpath)
 
 	if isrun {
-		s := single.NewWithTempDir(GetMD5Hash(rootpath), getPath("assets"))
+		s := single.NewWithTempDir("thrift_is_running_" + GetMD5Hash(rootpath), getPath("assets"))
 		s.Lock()
 		defer s.Unlock()
 		p.Run()
 	}
+}
+
+func getConfigDir(rootdirs []string) string {
+	path := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "configdir.php"), "/"))
+	
+    file, err := os.Open(path)
+    defer file.Close()
+    if err != nil {
+    	return filepath.FromSlash(strings.Join(append(rootdirs, "app", "config"), "/"))
+    }
+
+	var re = regexp.MustCompile(`return\s[\"|\'](.*)[\"|\']`)
+					
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+    	text := re.FindStringSubmatch(scanner.Text())
+    	if (len(text) > 1) {
+    		return text[len(text) -1]
+    	}
+    }
+
+    if err := scanner.Err(); err != nil {
+        log.Fatal(err)
+    }
+    
+    return filepath.FromSlash(strings.Join(append(rootdirs, "app", "config"), "/"))
 }
 
 func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift.TProtocolFactory) error {
@@ -96,6 +127,7 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 	if svport == "" || wsport == "" {
 		return nil
 	}
+	configDir := strings.Split(filepath.ToSlash(getConfigDir(rootdirs)), "/")
 
 	// log all error to file
 	if len(os.Args) > 1 {
@@ -106,7 +138,8 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 
 	svaddr := "127.0.0.1:" + svport
 	wsaddr := "0.0.0.0:" + wsport
-	svcPath := filepath.FromSlash(strings.Join(append(rootdirs, "app", "config", "service.buntdb"), "/"))
+	
+	svcPath := filepath.FromSlash(strings.Join(append(configDir, "service.buntdb"), "/"))
 	svcPathTemp := filepath.FromSlash(strings.Join(append(rootdirs, "assets", "service.buntdb"), "/"))
 
 	_, err := os.OpenFile(svcPath, os.O_RDWR|os.O_CREATE, 0666)
@@ -169,11 +202,12 @@ func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift
 
 	restartChan := make(chan bool)
 	cwd := filepath.FromSlash(strings.Join(rootdirs, "/"))
-	svcProcessor := svc.NewServiceManagerProcessor(NewServiceManagerHandler(svcDB, cwd, svport, restartChan))
+	svcHandler := NewServiceManagerHandler(svcDB, cwd, configDir, svport, restartChan)
+	svcProcessor := svc.NewServiceManagerProcessor(svcHandler)
 	processor.RegisterProcessor("ServiceManager", svcProcessor)
 
 	// register state processor (and start ws server)
-	sm := NewStateManagerHandler(wsaddr, rootdirs)
+	sm := NewStateManagerHandler(wsaddr, configDir)
 	defer func() { // close all state db connection when exiting
 		for _, v := range sm.States {
 			v.DB.Close()
@@ -298,6 +332,6 @@ func ThriftAlreadyRun(port string, dir string) bool {
 	}
 
 	defer transport.Close()
-	tdir, _ := service.Cwd()
+	tdir, _ := service.Cwd(ctx)
 	return (tdir == dir)
 }

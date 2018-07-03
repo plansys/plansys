@@ -55,7 +55,7 @@ func lcfirst(str string) string {
 	return ""
 }
 
-func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartChan chan bool) *ServiceManagerHandler {
+func NewServiceManagerHandler(db *buntdb.DB, dir string, configDir []string, port string, restartChan chan bool) *ServiceManagerHandler {
 	service := make(map[string]*svc.Service)
 	runningInstances := make(map[string]*RunningInstance)
 
@@ -120,7 +120,7 @@ func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartCha
 		DB:               db,
 		RunningInstances: runningInstances,
 		Config: ServiceConfig{
-			PhpPath:            getPhpPath(),
+			PhpPath:            getPhpPath(configDir),
 			KeepClosedInstance: 10,
 		},
 		Dir:         dir,
@@ -169,7 +169,7 @@ func NewServiceManagerHandler(db *buntdb.DB, dir string, port string, restartCha
 								}
 							}
 						}
-						p.Start(sname, "")
+						p.Start(ctx, sname, "")
 					}
 				}
 			}
@@ -192,7 +192,7 @@ func (p *ServiceManagerHandler) Add(ctx context.Context, svc *svc.Service) (err 
 }
 
 func (p *ServiceManagerHandler) Remove(ctx context.Context, name string) (err error) {
-	p.Stop(name)
+	p.Stop(ctx, name)
 	delete(p.Services, name)
 
 	err = p.DB.Update(func(tx *buntdb.Tx) error {
@@ -264,7 +264,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 	p.Services[name].Status = "ok"
 
 	log.Println("Service " + name + ": Started")
-	p.WsSend(name+":*", "started:"+running.Instance.Pid)
+	p.WsSend(ctx, name+":*", "started:"+running.Instance.Pid)
 	startTime := time.Now().Format("2006/01/02 15:04:05")
 	running.Instance.Output = fmt.Sprintf("%s %v started\n", startTime, name)
 
@@ -286,7 +286,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 
 				if len(buffer) >= 1000 || time.Since(lastSend) > 100*time.Millisecond {
 					running.Instance.Output += buffer
-					p.WsSend(name+":"+running.Instance.Pid, buffer)
+					p.WsSend(ctx, name+":"+running.Instance.Pid, buffer)
 					buffer = ""
 					lastSend = time.Now()
 				}
@@ -295,7 +295,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 				time.Sleep(timeout * time.Millisecond)
 				if len(buffer) > 0 {
 					running.Instance.Output += buffer
-					p.WsSend(name+":"+running.Instance.Pid, buffer)
+					p.WsSend(ctx, name+":"+running.Instance.Pid, buffer)
 				}
 				break
 			}
@@ -323,7 +323,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 			time.Sleep(500 * time.Millisecond)
 			stoppedMsg := fmt.Sprintf("\n%s %v stopped\n", time.Now().Format("2006/01/02 15:04:05"), name)
 			running.Instance.Output += stoppedMsg
-			p.WsSend(name+":"+running.Instance.Pid, stoppedMsg)
+			p.WsSend(ctx, name+":"+running.Instance.Pid, stoppedMsg)
 		}()
 
 		// add it to stopped instance
@@ -344,7 +344,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 		})
 
 		time.Sleep(10 * time.Millisecond)
-		p.WsSend(name+":*", "stopped:"+running.Instance.Pid)
+		p.WsSend(ctx, name+":*", "stopped:"+running.Instance.Pid)
 		log.Println("Service " + name + ": Stopped")
 	}()
 
@@ -357,7 +357,7 @@ func (p *ServiceManagerHandler) Start(ctx context.Context, name string, params s
 func (p *ServiceManagerHandler) Stop(ctx context.Context, name string) (err error) {
 	for _, val := range p.RunningInstances {
 		if val.Instance.ServiceName == name {
-			p.StopInstance(val.Instance.Pid)
+			p.StopInstance(ctx, val.Instance.Pid)
 		}
 	}
 	return nil
@@ -396,7 +396,7 @@ func (p *ServiceManagerHandler) WsSend(ctx context.Context, tag string, msg stri
 	defer transport.Close()
 
 	tid := "dev/service"
-	service.Send(&state.Client{
+	service.Send(ctx, &state.Client{
 		Tid: &tid,
 		Tag: &tag,
 	}, msg)
@@ -408,15 +408,15 @@ func (p *ServiceManagerHandler) GetService(ctx context.Context, name string) (se
 	return p.Services[name], nil
 }
 
-func (p *ServiceManagerHandler) GetAllServices() (ctx context.Context, services map[string]*svc.Service, err error) {
+func (p *ServiceManagerHandler) GetAllServices(ctx context.Context) (services map[string]*svc.Service, err error) {
 	return p.Services, nil
 }
 
-func (p *ServiceManagerHandler) Cwd() (ctx context.Context, str string, err error) {
+func (p *ServiceManagerHandler) Cwd(ctx context.Context) ( str string, err error) {
 	return p.Dir, err
 }
 
-func (p *ServiceManagerHandler) Quit() (ctx context.Context, err error) {
+func (p *ServiceManagerHandler) Quit(ctx context.Context) (err error) {
 	p.RestartChan <- true
 	return err
 }
