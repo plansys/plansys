@@ -86,11 +86,75 @@ app.directive('gridView', function($timeout, $http) {
                         });
                     }
                 }
+                
+                $scope.getCaretPosition = function(editableDiv) {
+                    var caretPos = 0,
+                        sel, range;
+                    if (window.getSelection) {
+                        sel = window.getSelection();
+                        if (sel.rangeCount) {
+                            range = sel.getRangeAt(0);
+                            if (range.commonAncestorContainer.parentNode == editableDiv) {
+                                caretPos = range.endOffset;
+                            }
+                        }
+                    } else if (document.selection && document.selection.createRange) {
+                        range = document.selection.createRange();
+                        if (range.parentElement() == editableDiv) {
+                            var tempEl = document.createElement("span");
+                            editableDiv.insertBefore(tempEl, editableDiv.firstChild);
+                            var tempRange = range.duplicate();
+                            tempRange.moveToElementText(tempEl);
+                            tempRange.setEndPoint("EndToEnd", range);
+                            caretPos = tempRange.text.length;
+                        }
+                    }
+                    return caretPos;
+                }
+                
                 $scope.editKey = function(e) {
                     var ngModel = $(e.target).attr('ng-model');
                     var sel = window.getSelection();
                     var textLength = $(e.target).text().length;
+                    
+                    if (e.which == 13)
+                    {
+                        if (e.preventDefault) {
+                            e.preventDefault();
+                        } else {
+                            e.returnValue = false;
+                        }
+                        
+                        var nextRow = $(e.target).parents("tr").next().find('[contenteditable][ng-model="' + ngModel + '"]');
 
+                        if (!!nextRow) {
+                            if(nextRow[0] != undefined)
+                            {
+                                $timeout(function() {
+                                    nextRow.focus();
+                                });    
+                            }
+                            else
+                            {
+                                var curTable = $(e.target).parents("tbody");
+                                var curRow = $(e.target).parents("tr")
+                                var curCol = $(e.target).parents("td")
+                                var curColIdx = curRow.find("td").index(curCol);
+                                var firstRow = curTable.find("tr:first-child");
+                                var nextCol = firstRow.find("td:eq(" + (curColIdx + 1) + ")");
+                                
+                                if (nextCol) {
+                                    var nextColTextBox = nextCol.find("[contenteditable]");
+                                    if (!!nextColTextBox) {
+                                        $timeout(function() {
+                                            nextColTextBox.focus();    
+                                        });
+                                    }
+                                }
+                            }   
+                        }
+                    }
+                    
                     if (textLength == sel.getRangeAt(0).endOffset || e.altKey) {
                         if (e.which == 40) {
                             var nextRow = $(e.target).parents("tr").next().find('[contenteditable][ng-model="' + ngModel + '"]');
@@ -107,7 +171,7 @@ app.directive('gridView', function($timeout, $http) {
                                     nextCol.focus();
                                 });
                             }
-                        }
+                        } 
                     }
 
                     if (sel.getRangeAt(0).endOffset == 0 || e.altKey) {

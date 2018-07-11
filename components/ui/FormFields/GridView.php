@@ -317,7 +317,7 @@ type="checkbox" /></label>';
         }
 
         return <<<EOF
-<td{$style} ng-class="rowClass(row, '{$fieldName}', '{$col['columnType']}')" {$attr}>
+<td{$style} class="col-{$idx}" ng-class="rowClass(row, '{$fieldName}', '{$col['columnType']}')" {$attr}>
     {$rowState}{$template}
 </td>
 EOF;
@@ -487,7 +487,7 @@ EOF;
 EOL;
         } else {
             return <<<EOL
-<th {$attr}>
+<th class="col-{$idx}" {$attr}>
 {$content}
 </th>
 EOL;
@@ -572,7 +572,7 @@ EOL;
 EOL;
         } else {
             return <<<EOL
-<th {$attr}>
+<th class="col-{$idx}" {$attr}>
 {$content}
 </th>
 EOL;
