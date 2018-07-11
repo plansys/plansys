@@ -275,16 +275,15 @@ class DropDownList extends FormField {
      * @return array me-return array hasil proses expression.
      */
     public function processExpr() {
-        
         if ($this->listExpr != "") {
             if (FormField::$inEditor) {
                 $this->list = '';
                 return ['list' => ''];
             }
-        
+            
             ## evaluate expression
             $this->list = $this->evaluate($this->listExpr, true);
-
+            
             if (is_array($this->list) && !Helper::is_assoc($this->list)) {
                 if (!is_array($this->list[0])) {
                     $this->list = Helper::toAssoc($this->list);
