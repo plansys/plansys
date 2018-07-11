@@ -18,8 +18,9 @@ app.directive('webSocketState', function($timeout, $http) {
                         new_uri = "ws://";
                     }
                     
+                    $scope.scheme = window.location.href.indexOf("https") === 0 ? "wss://" : "ws://";
                     $scope.config = $.extend({
-                         url: "ws://" + window.location.hostname + ":" + $scope.port,
+                         url: $scope.scheme + window.location.hostname + ":" + $scope.port,
                          tid: null,
                          uid: null,
                          sid: null,

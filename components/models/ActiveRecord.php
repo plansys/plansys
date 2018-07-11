@@ -807,7 +807,7 @@ class ActiveRecord extends CActiveRecord
             $relClassType = get_class($rel);
             $tableModel = $class::model();
             $table = $tableModel->tableName();
-            $tablePKCol = $tableModel->metadata->tableSchema->primaryKey;
+            $tablePKCol = $tableModel->getMetaData()->tableSchema->primaryKey;
 
             switch ($relClassType) {
                 case 'CHasOneRelation':
@@ -912,7 +912,7 @@ class ActiveRecord extends CActiveRecord
                 $criteriaAggregate = $criteria['aggregate'];
                 unset($criteria['aggregate']);
                 $cdbCriteria = new CDbCriteria($this->convertPagingCriteria($criteria));
-                $tableSchema = $tableModel->metadata->tableSchema;
+                $tableSchema = $tableModel->getMetaData()->tableSchema;
                 $this->processAggregate($this->__relations[$name], $criteriaAggregate, $tableSchema, $cdbCriteria);
             }
         }
@@ -1445,7 +1445,7 @@ class ActiveRecord extends CActiveRecord
             if ($k == 'currentModel' && count($this->__relations[$k]) > 0) {
                 $validator->attributes[] = $k;
             } else {
-                $rel = @$this->metaData->relations[$k];
+                $rel = @$this->getMetaData()->relations[$k];
                 if (!!$rel) {
                     $modelClass = $rel->className;
                     if (class_exists($modelClass)) {
@@ -1469,7 +1469,7 @@ class ActiveRecord extends CActiveRecord
         if ($relName == 'currentModel') {
             $rel = new CHasManyRelation('currentModel', get_class($this), $pk);
         } else {
-            $rel = @$this->metaData->relations[$relName];
+            $rel = @$this->getMetaData()->relations[$relName];
         }
 
         if (!!$rel) {
@@ -1844,7 +1844,7 @@ class ActiveRecord extends CActiveRecord
         $rels = [];
         $subs = [];
 
-        $metaRel = $model->metaData->relations;
+        $metaRel = $model->getMetaData()->relations;
         $class = get_class($model);
         $pk = $model->tableSchema->primaryKey;
 
@@ -2004,7 +2004,7 @@ class ActiveRecord extends CActiveRecord
             $relForeignKey = $rel->foreignKey;
             $relTableModel = $relClass::model();
             $relTable = $relTableModel->tableName();
-            $relPK = $relTableModel->metadata->tableSchema->primaryKey;
+            $relPK = $relTableModel->getMetaData()->tableSchema->primaryKey;
 
             switch ($relType) {
                 case 'CHasOneRelation':

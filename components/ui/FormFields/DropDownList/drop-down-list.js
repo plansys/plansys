@@ -1,4 +1,4 @@
-app.directive('dropDownList', function ($timeout) {
+app.directive('dropDownList', function ($timeout, $http) {
     return {
         require: '?ngModel',
         scope: true,
@@ -272,10 +272,21 @@ app.directive('dropDownList', function ($timeout) {
                 };
 
                 $scope.doSearch = function () {
-                    $timeout(function () {
-                        $el.find("li.hover").removeClass("hover");
-                        $el.find("li:not(.ng-hide):first").addClass("hover");
-                    }, 0);
+                    if ($scope.hasExpr === "N") {
+                        $timeout(function () {
+                            $el.find("li.hover").removeClass("hover");
+                            $el.find("li:not(.ng-hide):first").addClass("hover");
+                        }, 0);
+                    } else {
+                        $http.post(Yii.app.createUrl('formfield/DropDownList.processExpr'), {
+                            m: $scope.modelClass,
+                            n: $scope.name,
+                            prm: $scope.$parent.params
+                        }).success(function(res){
+                            $scope.formList = res;
+                            $scope.renderFormList();
+                        });
+                    }
                 };
 
                 $scope.isObject = function (input) {
@@ -340,6 +351,8 @@ app.directive('dropDownList', function ($timeout) {
                 $scope.modelClass = $el.find("data[name=model_class]").html();
                 $scope.value = $el.find("data[name=value]").html().trim();
                 $scope.defaultValue = $el.find("data[name=default_value]").html().trim();
+                $scope.hasExpr = $el.find("data[name=has_expr]").html().trim();
+                $scope.hasExprParams = $el.find("data[name=has_expr_params]").html().trim();
                 $scope.defaultType = $el.find("data[name=default_type]").html().trim();
                 $scope.isOpen = false;
                 $scope.text = "";
@@ -353,6 +366,7 @@ app.directive('dropDownList', function ($timeout) {
                 };
 
                 $scope.search = "";
+                
                 $timeout(function () {
                     var initialValue = $el.find("data[name=value]").html();
                     if (attrs.ngModel) {
@@ -362,7 +376,6 @@ app.directive('dropDownList', function ($timeout) {
                         }
                     }
                     
-
                     if ($scope.defaultType == 'first' && !initialValue && !!$scope.renderedFormList[0] && !!$scope.renderedFormList[0].value) {
                         initialValue = $scope.renderedFormList[0].key;
                         
@@ -379,7 +392,7 @@ app.directive('dropDownList', function ($timeout) {
                         ctrl.$setViewValue(initialValue);
                     }
                     $timeout(function () {
-                        if (typeof ctrl.$viewValue == 'undefined') {
+                        if (typeof ctrl.$viewValue == 'undefined' && $scope.formList) {
                             if (!$scope.formList['']) {
                                 $scope.text = '';
                             } else if (!!$scope.formList['']) {
@@ -390,6 +403,27 @@ app.directive('dropDownList', function ($timeout) {
                     if (attrs.searchable) {
                         $scope.searchable = $scope.$parent.$eval(attrs.searchable);
                     }
+                    
+                    if ($scope.hasExpr === "Y") {
+                        function getList() {
+                            $http.post(Yii.app.createUrl('formfield/DropDownList.processExpr'), {
+                                m: $scope.modelClass,
+                                n: $scope.name,
+                                prm: $scope.$parent.params
+                            }).success(function(res){
+                                $scope.formList = res;
+                                $scope.renderFormList();
+                            });
+                        }
+                        getList();
+                        
+                        if ($scope.hasExprParams === "Y") {
+                            $scope.$watch(function() { return $scope.$parent.params }, function(e) {
+                                getList();
+                            },true);
+                        }
+                    }
+                    
                 });
             }
         }
