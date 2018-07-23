@@ -48,7 +48,12 @@ class InstallDbForm extends Form {
             array (
                 'label' => 'Driver',
                 'name' => 'driver',
-                'listExpr' => 'Setting::getDBDriverList()',
+                'list' => array (
+                    'mysql' => 'MySQL',
+                    'oci' => 'Oracle',
+                    'pgsql' => 'PostgreSQL',
+                    'sqlsrv' => 'SQL Server',
+                ),
                 'layout' => 'Vertical',
                 'labelWidth' => '0',
                 'fieldWidth' => '12',
