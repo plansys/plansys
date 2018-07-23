@@ -13,7 +13,7 @@ class ServiceManager extends CComponent {
                include(Yii::getPathOfAlias('application.components.thrift.client.svc.Types') . ".php");
                include(Yii::getPathOfAlias('application.components.thrift.client.svc.ServiceManager') . ".php");
           }
-          
+               
           $portfile = @file_get_contents(Yii::getPathOfAlias('webroot.assets.ports') . ".txt");
           if (is_null($portfile)) {
               throw new Exception('Thrift Daemon is not running!'); 
@@ -28,7 +28,7 @@ class ServiceManager extends CComponent {
                
                self::$sm->transport->open();
           } catch (Exception $tx) {
-               if (strpos($tx->getMessage(), "not connect") !== false) {
+               if (strpos($tx->getMessage(), "not connect") !== false || strpos($tx->getMessage(), "Cannot open") !== false ) {
                     self::startDaemon(true);
                }
           }
@@ -238,10 +238,10 @@ class ServiceManager extends CComponent {
                } 
 
                if (!is_executable($file)) {
-                    chmod(substr($file, 0, strlen($params) + 1), 755);
+                    chmod(trim(substr($file, 0, strlen($file) - strlen($params))), 755);
                }
                
-               $output = shell_exec($file);
+               $output = exec($file);
                
                # wait until we can connect to thrift server
                $connecting = true;
