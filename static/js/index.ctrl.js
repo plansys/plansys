@@ -1,4 +1,4 @@
-app.controller("MainController", function ($scope, $http, $timeout, $localStorage) {
+app.controller("MainController", function ($scope, $http, $timeout, $localStorage, $compile) {
     $scope.$ = jQuery;
     $scope.size = Object.size;
     $scope.console = console;

@@ -10,6 +10,14 @@ app.directive('webSocketState', function($timeout, $http) {
                return function($scope, $el, attrs, ctrl) {
                     $scope.name = $el.find("data[name=name]:eq(0)").html().trim();
                     $scope.port = $el.find("data[name=port]:eq(0)").html().trim();
+                    
+                    var loc = window.location, new_uri;
+                    if (loc.protocol === "https:") {
+                        new_uri = "wss://";
+                    } else {
+                        new_uri = "ws://";
+                    }
+                    
                     $scope.scheme = window.location.href.indexOf("https") === 0 ? "wss://" : "ws://";
                     $scope.config = $.extend({
                          url: $scope.scheme + window.location.hostname + ":" + $scope.port,

@@ -223,9 +223,11 @@ class FormField extends CComponent {
      * @return array Fungsi ini digunakan untuk evaluate expression dan akan me-return hasil dalam bentuk pesan error.
      */
     public function evaluate($expr, $return = false, $variables = []) {
+
         if (!isset($this->builder->model)) {
             $result = $this->evaluateExpression($expr, $variables);
         } else {
+            
             $result = $this->evaluateExpression($expr, array_merge($variables, [
                 'model' => $this->builder->model,
             ]));
@@ -246,7 +248,7 @@ class FormField extends CComponent {
             $return = '';
             $_expression_ = str_replace('\"', '"', $_expression_);
             $_expression_ = str_replace("\\", "~", $_expression_);
-            
+
             try {
                 @eval('$return =  ' . $_expression_ . ';');
             } catch (Exception $e) {
