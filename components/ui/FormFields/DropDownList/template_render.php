@@ -72,7 +72,7 @@
                            dropdown-toggle href="#" 
                            ng-click="update(item.key);"
                            value="{{item.key}}">
-                            {{ item.value}}
+                            {{item.value}}
                         </a>
                         <div ng-if="isObject(item.value)" class="dropdown-menu-submenu">
                             <div class="dropdown-menu-header">

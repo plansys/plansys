@@ -174,11 +174,11 @@ class DropDownList extends FormField {
             array (
                 'label' => 'DropDown Item',
                 'name' => 'list',
-                'show' => 'Show',
                 'options' => array (
                     'ng-hide' => '(typeof(active.listExpr) != \'undefined\' && active.listExpr != \'\') || active.options[\'ps-list\'] != null',
                 ),
                 'allowEmptyKey' => 'Yes',
+                'show' => 'Show',
                 'allowSpaceOnKey' => 'Yes',
                 'type' => 'KeyValueGrid',
             ),
@@ -277,10 +277,12 @@ class DropDownList extends FormField {
     public function processExpr() {
         
         if ($this->listExpr != "") {
+            
             if (FormField::$inEditor) {
                 $this->list = '';
                 return ['list' => ''];
             }
+            
         
             ## evaluate expression
             $this->list = $this->evaluate($this->listExpr, true);
@@ -290,7 +292,23 @@ class DropDownList extends FormField {
                     $this->list = Helper::toAssoc($this->list);
                 }
             }
+            $isOneD = false;
+            foreach($this->list as $k => $v){
+                if($k === 0){
+                    $isOneD = true;        
+                }
+            }
+            
+            
+            if($isOneD){
+                $temp = $this->list;
+                $this->list = null;
+                foreach($temp as $k => $v){
+                    $this->list[$v] = $v;
+                }
+            }
         } 
+        
         
         return [
             'list' => $this->list
@@ -312,6 +330,22 @@ class DropDownList extends FormField {
             $res = $this->evaluate($ff['listExpr'], true,[
                 'params' => @$post['prm']
             ]);
+            
+            $isOneD = false;
+            foreach($res as $k => $v){
+                if($k === 0){
+                    $isOneD = true;        
+                }
+            }
+            
+            if($isOneD){
+                $temp = $res;
+                $res = null;
+                foreach($temp as $k => $v){
+                    $res[$v] = $v;
+                }
+            }
+            
             echo json_encode($res);
         }
     }
