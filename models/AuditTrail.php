@@ -123,7 +123,9 @@ class AuditTrail extends ActiveRecord {
         if (isset($params['r'])) {
             unset($params['r']);
         }
-        $params = http_build_query($params);
+        if (is_array($params)) {
+            $params = http_build_query($params);
+        }
 
         $return = [
             'url' => $url,
