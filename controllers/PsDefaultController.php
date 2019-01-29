@@ -52,7 +52,7 @@ class PsDefaultController extends Controller {
                             }
                         break;
                     case 403:
-                        if (stripos('forbidden', $error['message']) !== false) { 
+                        if (stripos('forbidden', $error['message']) !== false || $error['message'] === '') { 
                             if (Yii::app()->user->isGuest) {
                                 if (!isset($_GET['redir'])) {
                                     $this->redirect(['/site/login',
@@ -84,7 +84,6 @@ class PsDefaultController extends Controller {
                         $shouldRender = true;
                         break;
                 }
-
                 if ($shouldRender) {
                     $this->pageTitle  = $error['code'];
                     $_GET['rendered'] = true;

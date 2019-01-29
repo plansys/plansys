@@ -101,6 +101,21 @@ $scope.selInstanceChange = function(e) {
     $scope.ws.setTag($scope.model.name + ':' + $scope.selectedInstancePid);
 }
 
+$scope.save = function() {
+    $scope.status = 'Saving...';
+    var data = {
+        content: $scope.model.content,
+        id: $scope.params.id
+    };
+    $http.post(Yii.app.createUrl('/dev/service/save'), data)
+        .success(function(data) {
+            $scope.status = "Saved";
+        })
+        .error(function(data) {
+            $scope.status = "Save Failed!"
+        });
+}
+
 window.$(document).keydown(function(event) {
     $scope.status = navigator.platform.indexOf('Mac') > -1 ? 'Save: Cmd + S' : 'Save: Ctrl + S';
     if ((!(String.fromCharCode(event.which).toLowerCase() == 's' && (event.metaKey || event.ctrlKey)) &&
@@ -108,18 +123,7 @@ window.$(document).keydown(function(event) {
         ) && !(event.which == 19)) return true;
 
     if (String.fromCharCode(event.which).toLowerCase() == 's') {
-        $scope.status = 'Saving...';
-        var data = {
-            content: $scope.model.content,
-            id: $scope.params.id
-        };
-        $http.post(Yii.app.createUrl('/dev/service/save'), data)
-            .success(function(data) {
-                $scope.status = "Saved";
-            })
-            .error(function(data) {
-                $scope.status = "Save Failed!"
-            });
+        $scope.save();
     }
     else if (event.which === 13) {
         if ($scope.params.isRunning) {

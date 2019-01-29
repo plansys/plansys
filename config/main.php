@@ -21,6 +21,7 @@ $components = array(
     'db'           => Setting::getDB(),
     'errorHandler' => array(
         'class' => 'ErrorHandler',
+        'errorAction' => 'site/error'
     ),
     'cache'        => array(
         'class' => 'system.caching.CFileCache'

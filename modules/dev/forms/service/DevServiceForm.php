@@ -46,6 +46,31 @@ class DevServiceForm extends DevService {
             ),
             array (
                 'type' => 'Text',
+                'value' => '<style>
+@media only screen and (max-width: 600px) {
+  form .nav-tabs {
+      padding:0 20px;
+  }
+  form .nav-tabs > a {
+      margin-left: 8px !important;
+  }
+  form .nav-tabs li {
+      max-width:40px !important;
+      overflow:hidden !important;
+      height:27px !important;
+  }
+  form .log-window {
+      margin:0 !important;
+  }
+  form .mb {
+      width:42px !important;
+      overflow:hidden !important;
+  }
+}
+</style>',
+            ),
+            array (
+                'type' => 'Text',
                 'value' => '<tabset class=\'tab-set\'>
 ',
             ),
@@ -96,23 +121,26 @@ class DevServiceForm extends DevService {
                 'display' => 'all-line',
                 'type' => 'Text',
                 'value' => '<!-- BUTTONS -->
-<div class=\"btn btn-xs btn-default pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"popup.open()\">
+<div class=\"mb btn btn-xs btn-default pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"popup.open()\">
     <i class=\"fa fa-pencil\"></i>
     Edit Service
 </div>
 
-<div ng-show=\"params.isRunning\" class=\"btn btn-xs btn-danger pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"stop()\">
+<div ng-show=\"params.isRunning\" class=\"mb btn btn-xs btn-danger pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"stop()\">
     <i class=\"fa fa-stop\"></i> Stop All [ CTRL + <i class=\"fa fa fa-level-down fa-rotate-90\"></i> ]
 </div>
 
-<div ng-show=\"!params.isRunning\" class=\"btn btn-xs btn-success pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"start()\">
+<div ng-show=\"!params.isRunning\" class=\"mb btn btn-xs btn-success pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"start()\">
     <i class=\"fa fa-play\"></i> Run [ CTRL + <i class=\"fa fa fa-level-down fa-rotate-90\"></i> ]
 </div>
 
-<div ng-show=\"!!params.isRunning && (model.instance == \'parallel\' || (model.instance == \'single\' && model.singleInstanceMode == \'kill\')) \" class=\"btn btn-xs btn-success pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"start()\">
+<div ng-show=\"!!params.isRunning && (model.instance == \'parallel\' || (model.instance == \'single\' && model.singleInstanceMode == \'kill\')) \" class=\"mb btn btn-xs btn-success pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"start()\">
     <i class=\"fa fa-play\"></i> Run
 </div>
-
+<div class=\"mb btn btn-xs btn-primary pull-right\" style=\"font-size:11px;font-weight:bold;margin:4px 4px 0px 0px;\" ng-click=\"save()\">
+    <i class=\"fa fa-save\"></i>
+    Save
+</div>
 
 <div class=\"btn btn-xs\" style=\"font-size:11px;font-weight:bold\" >
     {{status}}
@@ -140,7 +168,7 @@ ng-model=\"model.content\">
                 'display' => 'all-line',
                 'type' => 'Text',
                 'value' => '<!-- LOG WINDOW -->
-    <div style=\"margin:0px -15px;padding:10px;font-size:12px;border-bottom:1px solid #999\">
+    <div class=\"log-window\" style=\"margin:0px -15px;padding:10px;font-size:12px;border-bottom:1px solid #999\">
         <span>
         Instance ID: <select ng-model=\"selectedInstancePid\" ng-change=\"selInstanceChange($event)\">
             <optgroup label=\"Running Instances\">

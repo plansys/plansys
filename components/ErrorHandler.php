@@ -131,6 +131,7 @@ class ErrorHandler extends CErrorHandler
 			$this->handleException($event->exception);
 		else // CErrorEvent
 			$this->handleError($event);
+	
 	}
 
 	/**
@@ -364,10 +365,9 @@ class ErrorHandler extends CErrorHandler
 	 */
 	protected function renderError()
 	{
-		if($this->errorAction!==null)
-			Yii::app()->runController($this->errorAction);
-		else
-		{
+		if($this->errorAction!==null) {
+			$a = Yii::app()->runController($this->errorAction);
+		} else {
 			$data=$this->getError();
 			if($this->isAjaxRequest())
 				Yii::app()->displayError($data['code'],$data['message'],$data['file'],$data['line']);

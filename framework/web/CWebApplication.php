@@ -280,7 +280,6 @@ class CWebApplication extends CApplication
 			$this->_controller=$controller;
 			$controller->init();
 			$controller->run($actionID);
-
 			$this->_controller=$oldController;
 		}
 		else
