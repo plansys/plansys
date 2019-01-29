@@ -111,7 +111,6 @@ $imports = array(
     'application.components.models.oci.COciCommandBuilder',
     'application.components.logging.DbProfiler',
     'application.components.logging.WebProfiler',
-    'application.components.react.php.*',
     'application.models.*',
     'application.forms.*',
     'app.forms.*',

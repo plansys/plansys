@@ -63,6 +63,9 @@ class UserController extends Controller {
                 $_POST['DevUserForm']['subscribed'] = '';
 
             $model->attributes = $_POST["DevUserForm"];
+            if ($model->last_login == "") {
+                $model->last_login = null;
+            }
             $model->resetRel('userRoles');
 
             if ($model->save()) {
