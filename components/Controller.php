@@ -147,12 +147,17 @@ class Controller extends CController {
 		else
 			$viewFile=$viewPath.DIRECTORY_SEPARATOR.$viewName;
 
+
 		if(is_file($viewFile.$extension))
 			return Yii::app()->findLocalizedFile($viewFile.$extension);
 		elseif($extension!=='.php' && is_file($viewFile.'.php'))
 			return Yii::app()->findLocalizedFile($viewFile.'.php');
-		else
-			return false;
+		else {
+		    $path = Setting::getRootPath() . '/plansys/framework/views/' . basename($viewFile.$extension);
+		    if (is_file($path)) return $path;
+		    
+		    return false;
+		}
 	}
 
     public function getViewFile($viewName) {

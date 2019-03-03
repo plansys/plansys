@@ -87,7 +87,7 @@ class PsDefaultController extends Controller {
                 if ($shouldRender) {
                     $this->pageTitle  = $error['code'];
                     $_GET['rendered'] = true;
-                    $this->render('error', $error);
+                    $this->render('log', $error);
                 }
             }
             
