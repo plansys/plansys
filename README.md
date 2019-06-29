@@ -1,10 +1,5 @@
-Plansys
-=======
+WARNING!! 
 
-Requirement: 
+DEPRECATED!!
 
-- PHP: 5.6
-- PHP Extensions: 
-    - mbstring
-    - gd2
-    - pdo
+Please use https://github.com/kamz-kun/plansys2.0 instead of this
